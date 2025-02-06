@@ -1,5 +1,17 @@
-import { Box, LinearProgress, Typography } from "@mui/material";
+import {
+  Box,
+  LinearProgress,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  InputAdornment,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 // hooks
 import useResponsive from "hooks/useResponsive";
 // components
@@ -14,157 +26,80 @@ export default function LoginPage() {
   const mdUp = useResponsive("up", "md", "md");
   const { isLoading } = useAppSelector((state) => state.auth);
 
-  // State to control visibility of elements
   const [isContentVisible, setIsContentVisible] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsContentVisible(true);
-    }, 500); // Delay before starting the fade-in (optional, 0.5s)
-
-    return () => clearTimeout(timer); // Cleanup timer
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <>
-      {isLoading && (
-        <Box sx={{ width: "100%" }}>
-          <LinearProgress />
-        </Box>
-      )}
+      {isLoading && <LinearProgress sx={{ width: "100%" }} />}
 
-      {/* Apply gradient background */}
       <StyledRootLogin
         sx={{
-          background: "linear-gradient(135deg, #16ab65, #e3f2fd)", // Gradient effect from green to light blue
-          minHeight: "100vh", // Full screen height
-          backgroundSize: "cover", // Ensure background covers the screen entirely
-          display: "flex", // Flexbox for alignment
-          flexDirection: "column", // Layout items vertically
-          justifyContent: "center", // Center vertically
-          alignItems: "center", // Center horizontally
+          background: "linear-gradient(135deg, #16ab65, #e3f2fd)",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
           padding: "16px",
-          position: "relative", // Required for positioning logo
+          position: "relative",
         }}
       >
-        {/* Logo and Welcome Section */}
-        <Box
-          sx={{
-            position: "absolute", // Position the container absolutely
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+          style={{
+            position: "absolute",
             top: "24px",
             left: "24px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start", // Align items to the left
-            backgroundColor: "#16ab65", // Green background for logo box
-            borderRadius: "16px", // Rounded corners
-            padding: "24px", // Padding around content
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Light shadow
-            maxWidth: "350px", // Limit the width of the box
-            zIndex: 10, // Ensure it's above other elements
-            opacity: isContentVisible ? 1 : 0, // Fade-in effect
-            transform: isContentVisible ? "translateY(0)" : "translateY(20px)", // Slide-in effect
-            transition: "opacity 1.5s ease, transform 1.5s ease", // Smooth transition
+            backgroundColor: "#16ab65",
+            borderRadius: "16px",
+            padding: "24px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            maxWidth: "350px",
+            color: "white",
           }}
         >
-          {/* Logo */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "8px", // Space below the logo
-            }}
-          >
-            <img
-              src={images.logo.logo_moneymind_no_bg}
-              alt="Logo"
-              style={{
-                width: "180px", // Adjust size for larger logo
-                height: "auto",
-                marginRight: "8px", // Space between logo and text
-              }}
-            />
-
-          </Box>
-
-          {/* Welcome Text */}
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#ffffff", // White text color
-              fontWeight: "bold",
-              marginBottom: "8px",
-            }}
-          >
+          <img
+            src={images.logo.logo_moneymind_no_bg}
+            alt="Logo"
+            style={{ width: "180px", height: "auto", marginBottom: "8px" }}
+          />
+          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
             Chào mừng đến với MoneyMind
           </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#ffffff", // White text color
-            }}
-          >
-            Quản lý tài chính thông minh và hiệu quả
-          </Typography>
-        </Box>
+          <Typography variant="body2">Quản lý tài chính thông minh</Typography>
+        </motion.div>
 
-        {/* Main Content Box */}
-        <Box
-          sx={{
-            display: "flex", // Arrange sections side by side
-            flexDirection: { xs: "column", md: "row" }, // Stack on small screens, row on medium+
-            alignItems: "center", // Align items vertically
-            justifyContent: "center", // Center content horizontally
-            gap: 4, // Space between sections
-            width: "100%", // Full width
-            maxWidth: "1200px", // Maximum width of content
-            opacity: isContentVisible ? 1 : 0, // Fade-in effect
-            transform: isContentVisible ? "translateY(0)" : "translateY(20px)", // Slide-in effect
-            transition: "opacity 1.5s ease, transform 1.5s ease", // Smooth transition
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.5 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            maxWidth: "700px", // Đồng bộ chiều rộng tối đa
+            margin: "0 auto", // Căn giữa toàn bộ
+            padding: "40px",
+            background: "rgba(255, 255, 255, 0.3)", // Nền bán trong suốt
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
           }}
         >
-          {/* Form Section */}
-          <Box
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent background
-              borderRadius: "12px", // Rounded corners
-              border: "1px solid rgba(0, 0, 0, 0.1)", // Subtle border
-              padding: "32px", // Padding inside the box
-              width: "100%", // Full width
-              maxWidth: "600px", // Increased max width
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Light shadow
-            }}
-          >
-            {/* Titles Above Form */}
-            <Box
-              sx={{
-                marginBottom: "16px", // Space between title and form
-                textAlign: "center", // Center align text
-              }}
-            >
-              <Typography
-                variant="h4"
-                gutterBottom
-                sx={{
-                  color: "#000000", // Black color
-                  fontWeight: "bold",
-                }}
-              >
-                Đăng nhập vào MoneyMind
-              </Typography>
-
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "#000000", // Black color
-                }}
-              >
-                MoneyMind sẽ giúp bạn quản lý hiệu quả
-              </Typography>
-            </Box>
-            <LoginForm />
-          </Box>
-        </Box>
+          <LoginForm />
+        </motion.div>
       </StyledRootLogin>
     </>
   );

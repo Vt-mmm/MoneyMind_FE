@@ -1,6 +1,5 @@
 // @mui
 import { Box, Button, Container, Typography } from "@mui/material";
-//
 import images from "assets";
 import { Helmet } from "components";
 import { StyledContent } from "./styles";
@@ -8,14 +7,14 @@ import { StyledContent } from "./styles";
 // ----------------------------------------------------------------------
 
 function Page404() {
-
   const handleNavigateLogin = () => {
     window.location.href = "/auth/login"; // Điều hướng đến trang login
   };
 
+
   return (
     <>
-      <Helmet title="404 Page Not Found" />
+      <Helmet title="404 - Trang không tồn tại" />
 
       <Container>
         <StyledContent
@@ -28,6 +27,8 @@ function Page404() {
             boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
           }}
         >
+          <Box component="img" src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCEvzt9ilh8D0TPZRvKwD-UQhX135oYFE1PA&s"} alt="404" sx={{ width: 300, mb: 2 }} />
+          
           <Typography
             variant="h3"
             paragraph
@@ -36,36 +37,33 @@ function Page404() {
               fontWeight: "bold",
             }}
           >
-            Trang không tồn tại
+            Oops! Trang không tồn tại
           </Typography>
 
           <Typography sx={{ color: "text.secondary", mb: 3 }}>
-            Rất tiếc, chúng tôi không tìm thấy trang mà bạn đang tìm kiếm. Hãy kiểm tra lại URL hoặc quay lại trang chính.
+            Chúng tôi không thể tìm thấy trang bạn yêu cầu. Hãy kiểm tra lại địa chỉ hoặc quay lại trang chính.
           </Typography>
 
-          <Box
-            component="img"
-            alt="Not found"
-            src={images.common.moneymind_loginlogo}
-            sx={{ height: 260, mx: "auto", my: { xs: 5, sm: 10 } }}
-          />
+          <Box display="flex" justifyContent="center" gap={2}>
 
-          <Button
-            size="large"
-            color="inherit"
-            variant="outlined"
-            sx={{
-              borderColor: "#16ab65",
-              color: "#16ab65",
-              "&:hover": {
-                borderColor: "#138a52",
-                color: "#138a52",
-              },
-            }}
-            onClick={handleNavigateLogin}
-          >
-            Đi tới trang đăng nhập
-          </Button>
+
+            <Button
+              size="large"
+              color="inherit"
+              variant="outlined"
+              sx={{
+                borderColor: "#16ab65",
+                color: "#16ab65",
+                "&:hover": {
+                  borderColor: "#138a52",
+                  color: "#138a52",
+                },
+              }}
+              onClick={handleNavigateLogin}
+            >
+              Đi tới trang đăng nhập
+            </Button>
+          </Box>
         </StyledContent>
       </Container>
     </>

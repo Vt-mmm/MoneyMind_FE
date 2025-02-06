@@ -1,5 +1,5 @@
-import { FormControl, FormHelperText, TextField } from '@mui/material';
-import { Controller, useFormContext } from 'react-hook-form';
+import { FormControl, FormHelperText, TextField } from "@mui/material";
+import { Controller, useFormContext } from "react-hook-form";
 
 interface InputFieldProps {
   name: string;
@@ -11,7 +11,7 @@ interface InputFieldProps {
   placeholder?: string;
   fullWidth?: boolean;
   className?: string | null;
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
   autoComplete?: string;
   isHidden?: boolean;
   required?: boolean;
@@ -19,19 +19,21 @@ interface InputFieldProps {
   multiline?: boolean;
   minRows?: number;
   InputProps?: { endAdornment: React.ReactNode };
+  sx?: object; // Thêm hỗ trợ sx
+  style?: React.CSSProperties; // Thêm hỗ trợ style
 }
 
 const InputField = ({
   name,
-  label = '',
-  type = '',
+  label = "",
+  type = "",
   rules = {},
-  defaultValue = '',
+  defaultValue = "",
   disabled = false,
-  placeholder = '',
+  placeholder = "",
   fullWidth = false,
   className = null,
-  size = 'small',
+  size = "small",
   autoComplete,
   isHidden = false,
   required = false,
@@ -39,6 +41,8 @@ const InputField = ({
   minRows,
   helperText,
   InputProps,
+  sx,
+  style,
   ...props
 }: InputFieldProps) => {
   const { control } = useFormContext();
@@ -52,26 +56,30 @@ const InputField = ({
           fullWidth={fullWidth}
           disabled={disabled}
           required={required}
+          style={style} // Áp dụng style cho FormControl
+          sx={sx} // Áp dụng sx cho FormControl
         >
           <TextField
             {...field}
             {...props}
             type={type}
-            size={size === 'small' ? 'small' : size === 'medium' ? 'medium' : undefined}
+            size={size === "small" ? "small" : size === "medium" ? "medium" : undefined}
             id={name}
             label={label}
             disabled={disabled}
-            helperText={helperText}
             placeholder={placeholder}
             multiline={multiline}
             minRows={minRows}
             InputProps={InputProps}
+            fullWidth={fullWidth} // Đảm bảo TextField mở rộng chiều rộng
             onChange={(e) => {
               const value = e.target.value.trimStart();
               field.onChange(value);
             }}
           />
-          <FormHelperText variant="filled">{fieldState.error && fieldState.error.message}</FormHelperText>
+          <FormHelperText variant="filled">
+            {fieldState.error && fieldState.error.message}
+          </FormHelperText>
         </FormControl>
       )}
       name={name}

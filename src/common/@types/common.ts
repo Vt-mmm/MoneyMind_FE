@@ -9,11 +9,6 @@ export interface OptionParams {
   isGetAll?: boolean | null | string;
   status?: boolean | null | string;
   type?: boolean | null | string;
-  idBrand?: null | number | string;
-  idKitchenCenter?: null | number | string;
-  idCategory?: null | number | string;
-  idStore?: null | number | string;
-  idProduct?: null | number | string;
   sortBy?: string | null;
   keySortName?: string | null;
   keySortCode?: string | null;
