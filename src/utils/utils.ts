@@ -121,3 +121,11 @@ export const getErrorMessage = (error: any, navigate: any) => {
   };
   return errorResponse;
 };
+// appendData
+export const appendData = (data: any) => {
+  const formData = new FormData();
+  for (var key in data) {
+    formData.append(key, data[key]);
+  }
+  return formData;
+};

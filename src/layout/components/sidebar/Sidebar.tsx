@@ -1,28 +1,24 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-// @mui
-import { Box, Drawer, Stack, Typography } from "@mui/material";
-// hooks
+import {
+  Box,
+  Drawer,
+  Stack,
+  Typography,
+  Divider,
+  alpha,
+  IconButton,
+} from "@mui/material";
 import { useResponsive } from "hooks";
-// components
 import { Logo, NavSection } from "components";
-// constants and enums
 import { Role } from "common/enums";
 import { useAppSelector } from "redux/config";
 import { useConfigSidebar } from "./useConfigSidebar";
+import { Close } from "@mui/icons-material";
 
 // ----------------------------------------------------------------------
 
 const NAV_WIDTH = 280;
-
-interface NavItem {
-  missions: string;
-  listNav: {
-    title: string;
-    path: string;
-    icon: JSX.Element;
-  }[];
-}
 
 interface SidebarProps {
   openNav: boolean;
@@ -32,85 +28,113 @@ interface SidebarProps {
 function Sidebar({ openNav, onCloseNav }: SidebarProps) {
   const { pathname } = useLocation();
   const { navAdmin } = useConfigSidebar();
-
   const { userAuth } = useAppSelector((state) => state.auth);
-
   const isDesktop = useResponsive("up", "lg");
 
   useEffect(() => {
-    if (openNav) {
-      onCloseNav();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (openNav) onCloseNav();
   }, [pathname]);
 
   const renderContent = (
     <Stack
-      justifyContent="space-between"
       sx={(theme) => ({
-        bgcolor: "#16ab65",
         height: "100vh",
-        overflowY: "scroll",
-        "&::-webkit-scrollbar": { width: 5 },
+        overflowY: "auto",
+        background: "linear-gradient(135deg, #16AB64, #0E804A)", // Thêm hiệu ứng gradient cho background
+        boxShadow: theme.shadows[3],
+        p: 2,
+        borderRadius: "8px",
+        "&::-webkit-scrollbar": {
+          width: 6,
+        },
         "&::-webkit-scrollbar-thumb": {
-          borderRadius: 2,
-          bgcolor: "transparent",
+          backgroundColor: alpha(theme.palette.grey[600], 0.4),
+          borderRadius: 3,
         },
       })}
     >
-      <Box>
-        <Box sx={{ px: 2.5, py: 3, display: "inline-flex" }}>
-          <Logo />
-        </Box>
-
-        {userAuth?.roles?.includes(Role.MONEYMIND_ADMIN) && (
-          <Box width="100%">
-            {navAdmin.map((navItem, index) => {
-              // Ensure navItem has missions and listNav before rendering
-              if (navItem.missions && navItem.listNav) {
-                return (
-                  <Box key={index} mb={1}>
-                    <Typography
-                      sx={{
-                        ml: 1,
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        color: "#212121",
-                      }}
-                    >
-                      {navItem.missions}
-                    </Typography>
-                    <NavSection data={navItem.listNav} />
-                  </Box>
-                );
-              }
-              return null; // In case navItem does not have missions or listNav
-            })}
-          </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+          p: 2,
+          background: "rgba(255, 255, 255, 0.15)",
+          borderRadius: "8px",
+        }}
+      >
+        <Logo />
+        {!isDesktop && (
+          <IconButton onClick={onCloseNav}>
+            <Close sx={{ color: "white" }} />
+          </IconButton>
         )}
       </Box>
+
+      {userAuth?.roles?.includes(Role.MONEYMIND_ADMIN) && (
+        <Box>
+          {navAdmin.map((navItem, index) =>
+            navItem.missions && navItem.listNav ? (
+              <Box key={index} sx={{ mb: 3 }}>
+                <Typography
+                  variant="caption"
+                  sx={(theme) => ({
+                    ml: 1,
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    color: "#FFFFFF", // Tiêu đề màu trắng
+                    letterSpacing: 1.2,
+                    mb: 1,
+                  })}
+                >
+                  {navItem.missions}
+                </Typography>
+                <Box
+                  sx={{
+                    "& .MuiListItemButton-root": {
+                      transition: "all 0.3s",
+                      borderRadius: "8px",
+                      mb: 1,
+                      color: "#FFFFFF", // Mục mặc định màu trắng
+                    },
+                    "& .MuiListItemButton-root:hover": {
+                      backgroundColor: "#13A671", // Màu nền khi hover
+                      color: "#FFFFFF", // Màu chữ khi hover
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                    },
+                    "& .MuiListItemText-primary": {
+                      fontSize: "1rem",
+                      fontWeight: "500",
+                      color: "inherit", // Theo màu của ListItemButton
+                    },
+                  }}
+                >
+                  <NavSection data={navItem.listNav} />
+                </Box>
+                {index < navAdmin.length - 1 && <Divider sx={{ mt: 2, opacity: 0.4, borderColor: "#FFFFFF" }} />}
+              </Box>
+            ) : null
+          )}
+        </Box>
+      )}
     </Stack>
   );
 
   return (
-    <Box
-      component="nav"
-      sx={{
-        flexShrink: { lg: 0 },
-        width: { lg: NAV_WIDTH },
-      }}
-    >
+    <Box component="nav" sx={{ flexShrink: { lg: 0 }, width: { lg: NAV_WIDTH } }}>
       {isDesktop ? (
         <Drawer
           open
           variant="permanent"
           PaperProps={{
-            sx: {
+            sx: (theme) => ({
               width: NAV_WIDTH,
-              bgcolor: "background.default",
-              borderRightStyle: "dashed",
-            },
+              borderRight: `1px solid ${alpha(theme.palette.grey[500], 0.24)}`,
+              boxShadow: theme.shadows[4],
+              background: "linear-gradient(135deg, #16AB64, #0E804A)", // Thêm hiệu ứng gradient cho background
+              borderRadius: "8px",
+            }),
           }}
         >
           {renderContent}
@@ -119,11 +143,14 @@ function Sidebar({ openNav, onCloseNav }: SidebarProps) {
         <Drawer
           open={openNav}
           onClose={onCloseNav}
-          ModalProps={{
-            keepMounted: true,
-          }}
+          ModalProps={{ keepMounted: true }}
           PaperProps={{
-            sx: { width: NAV_WIDTH },
+            sx: (theme) => ({
+              width: NAV_WIDTH,
+              boxShadow: theme.shadows[4],
+              background: "linear-gradient(135deg, #16AB64, #0E804A)", // Thêm hiệu ứng gradient cho background
+              borderRadius: "8px",
+            }),
           }}
         >
           {renderContent}

@@ -32,7 +32,6 @@ export const loginThunk = async (params: Params<LoginForm>, thunkAPI: any) => {
       data
     );
 
-    // Tạo đối tượng userStorage
     const userStorage: UserAuth = {
       userId: response.data.userId,
       username: response.data.username,
@@ -48,100 +47,25 @@ export const loginThunk = async (params: Params<LoginForm>, thunkAPI: any) => {
       setRefreshToken(response.data.tokens.refreshToken);
       setUserAuth(userStorage);
       setAuthenticated();
-      const message = handleResponseMessage('Login Successfully.');
+      const message = handleResponseMessage("Đăng nhập thành công.");
       thunkAPI.dispatch(setMessageSuccess(message));
       return userStorage;
     } else {
-      const message = handleResponseMessage('You do not have access to the system');
+      const message = handleResponseMessage(
+        "Bạn không có quyền truy cập vào hệ thống"
+      );
       thunkAPI.dispatch(setMessageError(message));
+      return thunkAPI.rejectWithValue(message);
     }
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error);
+    const errorMessage =
+      error.response?.data?.message ||
+      handleResponseMessage("Sai tài khoản hoặc mật khẩu. Vui lòng thử lại!"); // Thông báo lỗi cụ thể
+    thunkAPI.dispatch(setMessageError(errorMessage)); // Đẩy lỗi vào Redux
+    return thunkAPI.rejectWithValue(errorMessage);
   }
 };
 
-// export const updatePasswordThunk = async (
-//   params: Params<Omit<UpdatePasswordForm, "confirmPassword">>,
-//   thunkAPI: any
-// ) => {
-//   const { data, idParams, navigate } = params;
-
-//   try {
-//     const response: MessageResponse = await axiosClient.put(
-//       ROUTES_API_ACCOUNT.UPDATE_PASSWORD(
-//         idParams?.accountId ? idParams?.accountId : 0
-//       ),
-//       data
-//     );
-//     if (response) {
-//       const message = handleResponseMessage(response.message);
-//       thunkAPI.dispatch(setMessageSuccess(message));
-//       thunkAPI.dispatch(
-//         getUserInformation({ accountId: idParams?.accountId, navigate })
-//       );
-//     }
-//   } catch (error: any) {
-//     const errorResponse = getErrorMessage(error, navigate);
-//     const messageMultiLang = handleResponseMessage(
-//       errorResponse ? errorResponse?.errorMessage : ""
-//     );
-//     thunkAPI.dispatch(setMessageError(messageMultiLang));
-//     return thunkAPI.rejectWithValue(error);
-//   }
-// };
-
-// export const getUserInfoThunk = async (params: any, thunkAPI: any) => {
-//   const { accountId, navigate } = params;
-
-//   try {
-//     const response: UserInfo = await axiosClient.get(
-//       ROUTES_API_ACCOUNT.ACCOUNT_INFORMATION(accountId)
-//     );
-//     if (response) {
-//       const userStorage: UserAuth = {
-//         accountId: response?.accountId,
-//         email: response?.email,
-//         roleName: response?.roleName,
-//         isConfirmed: response?.isConfirmed,
-//       };
-//       setUserAuth(userStorage);
-//       return { response, userStorage };
-//     }
-//   } catch (error: any) {
-//     const errorResponse = getErrorMessage(error, navigate);
-//     const messageMultiLang = handleResponseMessage(
-//       errorResponse ? errorResponse?.errorMessage : ""
-//     );
-//     thunkAPI.dispatch(setMessageError(messageMultiLang));
-//     return thunkAPI.rejectWithValue(error);
-//   }
-// };
-
-// export const forgotPasswordThunk = async (
-//   params: Params<EmailForm>,
-//   thunkAPI: any
-// ) => {
-//   const { data, navigate } = params;
-//   try {
-//     const response: MessageResponse = await axiosClient.post(
-//       ROUTES_API_AUTH.FORGOT_PASSWORD,
-//       data
-//     );
-//     if (response) {
-//       navigate(PATH_AUTH.verificationOTP);
-//       const message = handleResponseMessage(response.message);
-//       thunkAPI.dispatch(setMessageSuccess(message));
-//     }
-//     return response;
-//   } catch (error: any) {
-//     const errorResponse = getErrorMessage(error, navigate);
-//     const messageMultiLang = handleResponseMessage(
-//       errorResponse ? errorResponse?.errorMessage : ""
-//     );
-//     thunkAPI.dispatch(setMessageError(messageMultiLang));
-//     return thunkAPI.rejectWithValue(error);
-//   }
-// };
 
 // export const resetPasswordThunk = async (
 //   params: Params<Omit<ResetForm, "confirmPassword">>,

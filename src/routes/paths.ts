@@ -21,6 +21,12 @@ export const PATH_ADMIN_APP = {
   root: path(ROOTS_ADMIN_DASHBOARD, '/dashboard'),
   report: path(ROOTS_ADMIN_DASHBOARD, '/report'),
   configurations: path(ROOTS_ADMIN_DASHBOARD, '/configurations'),
+  userManagement: {
+    root: path(ROOTS_ADMIN_DASHBOARD, '/user'),
+    list: path(ROOTS_ADMIN_DASHBOARD, '/users'),
+    newUser: path(ROOTS_ADMIN_DASHBOARD, '/user/creation'),
+    editById: path(ROOTS_ADMIN_DASHBOARD, '/user/updation/:id'),
+  },
 }
 export const PATH_MANAGER_APP = {
   report: path(ROOTS_MANAGER_DASHBOARD, '/dashboard'),

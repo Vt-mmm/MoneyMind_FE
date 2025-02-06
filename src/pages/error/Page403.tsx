@@ -1,8 +1,7 @@
 // @mui
-import { Box, Button, Container, Typography } from '@mui/material';
-//
-import { Helmet } from 'components';
-import { StyledContent } from './styles';
+import { Box, Button, Container, Typography } from "@mui/material";
+import { Helmet } from "components";
+import { StyledContent } from "./styles";
 
 // ----------------------------------------------------------------------
 
@@ -13,65 +12,45 @@ function Page403() {
 
   return (
     <>
-      <Helmet title="403 Page No Permission" />
-      <Container
-        sx={{
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          background: 'linear-gradient(135deg, #16ab65 0%, #4caf50 100%)', // Gradient background
-        }}
-      >
+      <Helmet title="403 - Không có quyền truy cập" />
+
+      <Container>
         <StyledContent
           sx={{
-            textAlign: 'center',
-            alignItems: 'center',
-            backgroundColor: '#ffffff',
-            padding: 4,
+            textAlign: "center",
+            alignItems: "center",
+            bgcolor: "#f9f9f9",
+            p: 4,
             borderRadius: 2,
-            boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
-            width: '100%',
-            maxWidth: 500,
-            border: '1px solid #ddd',
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Typography variant="h3" paragraph sx={{ color: '#16ab65', fontWeight: 600 }}>
+          <Box component="img" src="https://bizflyportal.mediacdn.vn/thumb_wm/1000,100/bizflyportal/images/loi16045468899996.jpg" alt="403" sx={{ width: 300, mb: 2, borderRadius: 2, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }} />
+          
+          <Typography
+            variant="h3"
+            paragraph
+            sx={{
+              color: "#16ab65",
+              fontWeight: "bold",
+            }}
+          >
             Bạn không có quyền truy cập
           </Typography>
 
-          <Typography sx={{ color: 'text.secondary', marginBottom: 4 }}>
+          <Typography sx={{ color: "text.secondary", mb: 3 }}>
             Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập lại để tiếp tục.
           </Typography>
 
-          <Box
-            component="img"
-            alt="No permissions"
-            src="https://bizflyportal.mediacdn.vn/thumb_wm/1000,100/bizflyportal/images/loi16045468899996.jpg" // Placeholder ảnh (bạn có thể thay bằng ảnh thực tế)
-            sx={{
-              height: 260,
-              mx: 'auto',
-              my: { xs: 5, sm: 10 },
-              borderRadius: 2,
-              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Thêm bóng mờ cho ảnh
-            }}
-          />
-
           <Button
             size="large"
-            color="success" // Dùng màu chủ đạo là #16ab65
             variant="contained"
-            onClick={handleNavigateLogin}
             sx={{
-              width: '100%',
-              padding: '12px 20px',
-              textTransform: 'uppercase',
-              fontWeight: 600,
-              backgroundColor: '#16ab65',
-              '&:hover': {
-                backgroundColor: '#128a4d',
-              },
+              bgcolor: "#16ab65",
+              color: "#fff",
+              "&:hover": { bgcolor: "#138a52" },
             }}
+            onClick={handleNavigateLogin}
           >
             Đăng nhập lại
           </Button>
