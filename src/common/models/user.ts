@@ -12,6 +12,7 @@ export interface UserInfo {
   status: string;
   emailConfirmed : boolean;
   userName: string;
+  roles: string;
 }
 // Thêm:
 export interface UserToCreate {

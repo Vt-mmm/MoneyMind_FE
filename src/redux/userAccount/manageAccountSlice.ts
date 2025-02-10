@@ -130,10 +130,12 @@ const userSlice = createSlice({
       .addCase(deleteUser.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(deleteUser.fulfilled, (state) => {
+      .addCase(deleteUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
+        // Giả sử action.payload chứa accountId của user đã bị xóa:
+        state.users = state.users.filter(user => user.accountId !== action.payload.accountId);
       })
       .addCase(deleteUser.rejected, (state) => {
         state.isLoading = false;

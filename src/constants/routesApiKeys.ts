@@ -20,8 +20,8 @@ export const ROUTES_API_ACCOUNT = {
 };
 export const ROUTES_API_USERS = {
   GET_ALL_USERS: ({
-    itemsPerPage = "",
-    currentPage = "",
+    itemsPerPage = 10,
+    currentPage = 1,
     searchValue = "",
     sortBy = "",
   }: {
@@ -30,8 +30,6 @@ export const ROUTES_API_USERS = {
     searchValue?: string;
     sortBy?: string;
   }) => {
-    // path() là hàm tiện ích bạn đã có sẵn để nối đường dẫn, ví dụ path('/users', '?searchValue=...')
-    // Nếu không có path(), bạn có thể nối thủ công: return `/users?searchValue=...`
     return path(
       ROOTS_USERS,
       `?searchValue=${searchValue}&currentPage=${currentPage}&itemsPerPage=${itemsPerPage}&sortBy=${sortBy}`
