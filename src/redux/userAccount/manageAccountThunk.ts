@@ -9,12 +9,7 @@ import { setMessageError, setMessageSuccess } from 'redux/auth/authSlice';
 import { UserInfo } from 'common/models'; // tuỳ vị trí file model
 import { getErrorMessage, handleResponseMessage, appendData } from 'utils'; 
 import { getAllUsers } from './manageAccountSlice'; 
-// (Chú ý: lát nữa ở userSlice sẽ export ra getAllUsers, 
-//  nên tạm thời có thể để “// @ts-ignore” nếu TS báo lỗi import chéo, 
-//  hoặc thứ tự tạo file “thunk” trước “slice”)
 
-// 1) Lấy toàn bộ danh sách User
-// 1) Lấy toàn bộ danh sách User
 export const getAllUsersThunk = async (params: any, thunkAPI: any) => {
     const { navigate, optionParams } = params;
     try {
@@ -82,15 +77,23 @@ export const createNewUserThunk = async (params: any, thunkAPI: any) => {
 // 4) Cập nhật user
 export const updateUserThunk = async (params: any, thunkAPI: any) => {
   const { data, accountId, optionParams, navigate } = params;
-  const formData = appendData(data);
-
+  
   try {
-    const response = await axiosFormData.put(ROUTES_API_USERS.UPDATE_USER(accountId), formData);
+    // Gửi dữ liệu JSON trực tiếp, không cần chuyển sang FormData
+    const response = await axiosClient.put(ROUTES_API_USERS.UPDATE_USER(accountId), data);
 
-    // Thay vì response?.message:
     if (response) {
-      await thunkAPI.dispatch(getAllUsers({ optionParams, navigate }));
-      const msg = handleResponseMessage(response?.data?.message || 'Updated user successfully!');
+      await thunkAPI.dispatch(
+        getAllUsers({
+          optionParams: optionParams || {
+            itemsPerPage: 10,
+            currentPage: 1,
+            searchValue: "",
+            sortBy: ""
+          },
+          navigate,
+        })
+      );      const msg = handleResponseMessage(response?.data?.message || 'Updated user successfully!');
       thunkAPI.dispatch(setMessageSuccess(msg));
     }
     return response;
@@ -101,6 +104,7 @@ export const updateUserThunk = async (params: any, thunkAPI: any) => {
     return thunkAPI.rejectWithValue(error);
   }
 };
+
 
 // 5) Xoá user
 export const deleteUserThunk = async (params: any, thunkAPI: any) => {

@@ -169,7 +169,6 @@ const MoneyMindDashboardPage: React.FC = () => {
                   <TableRow
                     key={trx.id}
                     sx={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/transactions/${trx.id}`)}
                   >
                     <TableCell>{trx.id}</TableCell>
                     <TableCell>{trx.user}</TableCell>
@@ -181,19 +180,11 @@ const MoneyMindDashboardPage: React.FC = () => {
               </TableBody>
             </Table>
             <Box display="flex" justifyContent="flex-end" p={2}>
-              <Link
-                to="/transactions"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  textDecoration: 'none',
-                }}
-              >
+
                 <Typography variant="body2" mr={0.5}>
                   Xem tất cả
                 </Typography>
                 <KeyboardArrowRightIcon fontSize="small" />
-              </Link>
             </Box>
           </TableContainer>
         </Card>

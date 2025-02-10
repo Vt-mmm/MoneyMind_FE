@@ -37,21 +37,21 @@ function Sidebar({ openNav, onCloseNav }: SidebarProps) {
 
   const renderContent = (
     <Stack
-      sx={(theme) => ({
-        height: "100vh",
-        overflowY: "auto",
-        background: "linear-gradient(135deg, #16AB64, #0E804A)", // Thêm hiệu ứng gradient cho background
-        boxShadow: theme.shadows[3],
-        p: 2,
-        borderRadius: "8px",
-        "&::-webkit-scrollbar": {
-          width: 6,
-        },
-        "&::-webkit-scrollbar-thumb": {
-          backgroundColor: alpha(theme.palette.grey[600], 0.4),
-          borderRadius: 3,
-        },
-      })}
+    sx={(theme) => ({
+      height: "100vh",
+      overflowY: "auto",
+      background: "linear-gradient(135deg, #1EC774, #16AB64, #0A6742)", // Cập nhật gradient
+      boxShadow: theme.shadows[3],
+      p: 2,
+      borderRadius: "8px",
+      "&::-webkit-scrollbar": {
+        width: 6,
+      },
+      "&::-webkit-scrollbar-thumb": {
+        backgroundColor: alpha(theme.palette.grey[600], 0.4),
+        borderRadius: 3,
+      },
+    })}
     >
       <Box
         sx={{
@@ -132,7 +132,7 @@ function Sidebar({ openNav, onCloseNav }: SidebarProps) {
               width: NAV_WIDTH,
               borderRight: `1px solid ${alpha(theme.palette.grey[500], 0.24)}`,
               boxShadow: theme.shadows[4],
-              background: "linear-gradient(135deg, #16AB64, #0E804A)", // Thêm hiệu ứng gradient cho background
+              background: "radial-gradient(circle, #16AB64, #0E804A)",
               borderRadius: "8px",
             }),
           }}

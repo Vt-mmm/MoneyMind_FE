@@ -23,6 +23,10 @@ import {
   DialogActions,
   CircularProgress,
   TablePagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
@@ -50,15 +54,23 @@ const UserManagementPage = () => {
   // State phân trang: page là index (0-based) của MUI, currentPage của API có thể là 1-based
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  // Tạo mảng sortedUsers dựa trên users
+
+  // Sắp xếp danh sách user theo userName (theo thứ tự bảng chữ cái)
   const sortedUsers = [...users].sort((a, b) =>
     a.userName.localeCompare(b.userName)
   );
 
+  // Lọc bỏ các user có role "Admin" (không phân biệt hoa thường)
+  const filteredUsers = sortedUsers.filter((user) => {
+    if (user.roles && Array.isArray(user.roles)) {
+      return !user.roles.some((role) => role.toLowerCase() === "admin");
+    }
+    return true;
+  });
   // Các state cho Dialog cập nhật và xóa user
   const [openDialog, setOpenDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState({
-    accountId: 0,
+    accountId: "",      // Dùng string cho GUID
     email: "",
     userName: "",
     roleName: "",
@@ -75,7 +87,7 @@ const UserManagementPage = () => {
           itemsPerPage: rowsPerPage,
           currentPage: page + 1, // API dùng 1-based page
           searchValue: "",
-          sortBy: "userName"  // Thêm tham số sortBy để sắp xếp theo userName
+          sortBy: "userName", // Sắp xếp theo userName
         },
         navigate,
       })
@@ -88,7 +100,7 @@ const UserManagementPage = () => {
       accountId: user.id, // Sử dụng user.id nếu API trả về id
       email: user.email,
       userName: user.userName,
-      roleName: user.roleName,
+      roleName: user.roles && user.roles.length > 0 ? user.roles[0] : "",
       status: user.status,
     });
     setOpenDialog(true);
@@ -99,15 +111,16 @@ const UserManagementPage = () => {
       updateUser({
         data: {
           email: currentUser.email,
-          userName: currentUser.userName, // update userName
+          userName: currentUser.userName,
+          role: currentUser.roleName,
         },
-        accountId: currentUser.accountId, // giá trị này bây giờ đã là user.id
+        accountId: currentUser.accountId,
         navigate,
       })
     );
     setOpenDialog(false);
   };
-
+  
   // Mở dialog xác nhận xóa user
   const handleConfirmDelete = (user: any) => {
     setUserToDelete(user);
@@ -119,8 +132,7 @@ const UserManagementPage = () => {
     if (userToDelete) {
       await dispatch(
         deleteUser({
-          accountId: userToDelete.accountId, // hoặc userToDelete.id nếu dữ liệu trả về khác
-          optionParams: { itemsPerPage: rowsPerPage, currentPage: page + 1 },
+          accountId: userToDelete.id, // Sử dụng userToDelete.id thay vì accountId
           navigate,
         })
       );
@@ -171,11 +183,12 @@ const UserManagementPage = () => {
                       <TableCell>Email</TableCell>
                       <TableCell>User Name</TableCell>
                       <TableCell>Trạng Thái</TableCell>
+                      <TableCell>Role</TableCell>
                       <TableCell>Hành Động</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {sortedUsers.map((user, index) => (
+                    {filteredUsers.map((user, index) => (
                       <TableRow key={user.accountId}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{user.email}</TableCell>
@@ -187,6 +200,8 @@ const UserManagementPage = () => {
                             <HighlightOffIcon sx={{ color: "red" }} />
                           )}
                         </TableCell>
+                        <TableCell>{user.roles && user.roles.length > 0 ? user.roles[0] : ""}</TableCell>
+
                         <TableCell>
                           <Stack direction="row" spacing={1}>
                             <IconButton
@@ -224,6 +239,7 @@ const UserManagementPage = () => {
         </Box>
       </Card>
 
+     
       {/* Dialog cập nhật user */}
       <Dialog
         open={openDialog}
@@ -251,7 +267,23 @@ const UserManagementPage = () => {
                 }))
               }
             />
-
+            <FormControl fullWidth>
+              <InputLabel id="role-select-label">Role</InputLabel>
+              <Select
+                labelId="role-select-label"
+                label="Role"
+                value={currentUser.roleName}
+                onChange={(e) =>
+                  setCurrentUser((prev) => ({
+                    ...prev,
+                    roleName: e.target.value,
+                  }))
+                }
+              >
+                <MenuItem value="User">User</MenuItem>
+                <MenuItem value="Manager">Manager</MenuItem>
+              </Select>
+            </FormControl>
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -261,9 +293,8 @@ const UserManagementPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Dialog xác nhận xóa user */}
-      <Dialog
+       {/* Dialog xác nhận xóa user */}
+       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
         maxWidth="xs"

@@ -15,7 +15,7 @@ const axiosServiceAddress = axios.create({
 });
 
 const axiosFormData = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
+  baseURL: process.env.REACT_APP_BASE_URL || 'http://localhost:7080', // Cấu hình backend là localhost:7080
   headers: {
     'Content-Type': 'multipart/form-data',
   },
