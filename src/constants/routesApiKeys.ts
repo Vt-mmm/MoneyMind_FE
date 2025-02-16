@@ -1,16 +1,12 @@
-import { OptionParams } from "common/@types";
 import { path, pathRoot } from "utils";
 const ROOTS_AUTH = "/api/Authentications";
 const ROOTS_ACCOUNT = "/accounts";
-const ROOTS_VERIFY = "/verifications";
 const ROOTS_USERS = "/api/admin/user";
 
 export const ROUTES_API_AUTH = {
   LOGIN: path(ROOTS_AUTH, `/Login`),
   REFRESH_TOKEN: path(ROOTS_AUTH, `/regeneration-tokens`),
-  RESET_PASSWORD: path(ROOTS_AUTH, `/password-resetation`),
-  FORGOT_PASSWORD: path(ROOTS_VERIFY, `/email-verification`),
-  VERIFY_OTP: path(ROOTS_VERIFY, `/otp-verification`),
+  LOGIN_GOOGLE: "/api/Authentications/GoogleLogin",
 };
 
 export const ROUTES_API_ACCOUNT = {
@@ -38,12 +34,9 @@ export const ROUTES_API_USERS = {
 
   GET_USER_DETAIL: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
 
-  CREATE_USER: pathRoot(ROOTS_USERS), // POST /users
+  CREATE_USER: pathRoot(ROOTS_USERS),
 
   UPDATE_USER: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
 
   DELETE_USER: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
-
-  // Nếu bạn muốn cập nhật trạng thái hoặc một hành động khác cho user, bạn có thể thêm
-  // UPDATE_STATUS_USER: (accountId: number) => path(ROOTS_USERS, `/${accountId}/updating-status`),
 };

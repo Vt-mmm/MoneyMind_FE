@@ -1,4 +1,4 @@
-import { FormControl, FormHelperText, TextField } from "@mui/material";
+import { FormControl, FormHelperText, TextField, InputAdornment } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 
 interface InputFieldProps {
@@ -18,9 +18,12 @@ interface InputFieldProps {
   helperText?: string;
   multiline?: boolean;
   minRows?: number;
-  InputProps?: { endAdornment: React.ReactNode };
-  sx?: object; // Thêm hỗ trợ sx
-  style?: React.CSSProperties; // Thêm hỗ trợ style
+  InputProps?: {
+    startAdornment?: React.ReactNode;
+    endAdornment?: React.ReactNode;
+  };
+  sx?: any;
+  style?: React.CSSProperties;
 }
 
 const InputField = ({
@@ -40,7 +43,7 @@ const InputField = ({
   multiline = false,
   minRows,
   helperText,
-  InputProps,
+  InputProps = {},
   sx,
   style,
   ...props
@@ -56,22 +59,28 @@ const InputField = ({
           fullWidth={fullWidth}
           disabled={disabled}
           required={required}
-          style={style} // Áp dụng style cho FormControl
-          sx={sx} // Áp dụng sx cho FormControl
+          style={style}
+          sx={sx}
         >
           <TextField
             {...field}
             {...props}
             type={type}
-            size={size === "small" ? "small" : size === "medium" ? "medium" : undefined}
             id={name}
             label={label}
             disabled={disabled}
             placeholder={placeholder}
             multiline={multiline}
             minRows={minRows}
-            InputProps={InputProps}
-            fullWidth={fullWidth} // Đảm bảo TextField mở rộng chiều rộng
+            fullWidth={fullWidth}
+            InputProps={{
+              startAdornment: InputProps?.startAdornment ? (
+                <InputAdornment position="start">{InputProps.startAdornment}</InputAdornment>
+              ) : null,
+              endAdornment: InputProps?.endAdornment ? (
+                <InputAdornment position="end">{InputProps.endAdornment}</InputAdornment>
+              ) : null,
+            }}
             onChange={(e) => {
               const value = e.target.value.trimStart();
               field.onChange(value);

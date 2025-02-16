@@ -1,8 +1,8 @@
 export interface UserAuth {
   userId: string;
-  username: string;
+  username?: string; 
   email: string;
-  roles: string[]; // Cập nhật thành mảng
+  roles: string[]; 
 }
 
 export interface UserInfo {
@@ -14,7 +14,6 @@ export interface UserInfo {
   userName: string;
   roles: string;
 }
-// Thêm:
 export interface UserToCreate {
   email: string;
   roleName: string;
@@ -23,8 +22,8 @@ export interface UserToCreate {
 }
 
 export interface UserToUpdate {
-  accountId: number; // ID của user để biết đang cập nhật user nào
-  email?: string; // các trường optional
+  accountId: number; 
+  email?: string; 
   roleName?: string;
   status?: string;
   emailConfirmed?: boolean;

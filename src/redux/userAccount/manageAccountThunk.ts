@@ -5,8 +5,6 @@ import { ROUTES_API_USERS } from 'constants/routesApiKeys';
 // Import các hàm setMessageSuccess, setMessageError nếu bạn muốn hiển thị thông báo
 import { setMessageError, setMessageSuccess } from 'redux/auth/authSlice';
 
-// Model UserInfo
-import { UserInfo } from 'common/models'; // tuỳ vị trí file model
 import { getErrorMessage, handleResponseMessage, appendData } from 'utils'; 
 import { getAllUsers } from './manageAccountSlice'; 
 
