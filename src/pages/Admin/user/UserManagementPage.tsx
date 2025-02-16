@@ -70,7 +70,7 @@ const UserManagementPage = () => {
   // Các state cho Dialog cập nhật và xóa user
   const [openDialog, setOpenDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState({
-    accountId: "",      // Dùng string cho GUID
+    accountId: "", // Dùng string cho GUID
     email: "",
     userName: "",
     roleName: "",
@@ -120,7 +120,7 @@ const UserManagementPage = () => {
     );
     setOpenDialog(false);
   };
-  
+
   // Mở dialog xác nhận xóa user
   const handleConfirmDelete = (user: any) => {
     setUserToDelete(user);
@@ -200,7 +200,11 @@ const UserManagementPage = () => {
                             <HighlightOffIcon sx={{ color: "red" }} />
                           )}
                         </TableCell>
-                        <TableCell>{user.roles && user.roles.length > 0 ? user.roles[0] : ""}</TableCell>
+                        <TableCell>
+                          {user.roles && user.roles.length > 0
+                            ? user.roles[0]
+                            : ""}
+                        </TableCell>
 
                         <TableCell>
                           <Stack direction="row" spacing={1}>
@@ -239,7 +243,6 @@ const UserManagementPage = () => {
         </Box>
       </Card>
 
-     
       {/* Dialog cập nhật user */}
       <Dialog
         open={openDialog}
@@ -293,8 +296,8 @@ const UserManagementPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-       {/* Dialog xác nhận xóa user */}
-       <Dialog
+      {/* Dialog xác nhận xóa user */}
+      <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
         maxWidth="xs"

@@ -3,17 +3,8 @@ import { useEffect } from "react";
 // @mui icon
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-
 // @mui
-import {
-  Avatar,
-  Button,
-  Divider,
-  MenuItem,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Avatar, Button, MenuItem, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 // redux
 import { logout } from "redux/auth/authSlice";
@@ -24,6 +15,8 @@ import { useAppDispatch, useAppSelector } from "redux/config";
 import { PATH_AUTH } from "routes/paths";
 import { MenuPopover } from "components";
 import { Role } from "common/enums";
+import { setIsLogout } from "redux/auth/authSlice";
+import { removeAccessToken, removeRefreshToken } from "utils";
 
 function AccountPopover() {
   const { navigate } = useNavigate();
@@ -31,19 +24,30 @@ function AccountPopover() {
   const { open, handleOpenMenu, handleCloseMenu } = usePopover();
 
   const { userAuth, isLogout } = useAppSelector((state) => state.auth);
-
   const handleLogout = async () => {
-    const result = await dispatch(logout(navigate)); // Truyền navigate vào đây
-    if (logout.fulfilled.match(result)) {
-      navigate(PATH_AUTH.login); // Điều hướng về trang đăng nhập
+    document.title = "Đăng nhập - MoneyMind";
+
+    removeAccessToken();
+    removeRefreshToken();
+    localStorage.removeItem("userAuth");
+    sessionStorage.clear();
+
+    try {
+      await dispatch(logout(navigate)).unwrap();
+      navigate(PATH_AUTH.login, { replace: true });
+    } catch (error) {
+      console.error("❌ Lỗi khi logout:", error);
     }
   };
 
   useEffect(() => {
     if (isLogout) {
-      navigate(PATH_AUTH.login); // Điều hướng khi isLogout là true
+      setTimeout(() => {
+        dispatch(setIsLogout(false));
+        navigate(PATH_AUTH.login);
+      }, 100);
     }
-  }, [isLogout, navigate]);
+  }, [isLogout, navigate, dispatch]);
 
   return (
     <>
