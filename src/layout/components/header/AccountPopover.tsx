@@ -25,7 +25,6 @@ function AccountPopover() {
 
   const { userAuth, isLogout } = useAppSelector((state) => state.auth);
   const handleLogout = async () => {
-    document.title = "Đăng nhập - MoneyMind";
 
     removeAccessToken();
     removeRefreshToken();

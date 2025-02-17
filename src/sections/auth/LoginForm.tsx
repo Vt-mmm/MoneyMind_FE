@@ -18,6 +18,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useValidationForm } from "hooks";
 import images from "assets";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import GoogleIcon from "@mui/icons-material/Google";
 
 interface LoginFormType {
   email: string;
@@ -214,9 +215,39 @@ function LoginForm() {
 
               {/* Nút Google Login */}
               <GoogleLogin
-                onSuccess={handleGoogleLogin} 
+                onSuccess={handleGoogleLogin}
                 onError={() => setErrorMessage("Đăng nhập Google thất bại.")}
+                useOneTap
+                containerProps={{ style: { display: "none" } }} 
               />
+
+              <Button
+                fullWidth
+                size="large"
+                variant="outlined"
+                startIcon={<GoogleIcon />} 
+                sx={{
+                  color: "#149b5a",
+                  fontWeight: "bold",
+                  borderRadius: "8px",
+                  mt: 1,
+                  padding: "12px",
+                  fontSize: "16px",
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor: "#f1f1f1",
+                  },
+                }}
+                onClick={() => {
+                  const googleButton =
+                    document.querySelector("div[role=button]");
+                  if (googleButton) {
+                    (googleButton as HTMLElement).click(); // 
+                  }
+                }}
+              >
+                Đăng nhập bằng Google
+              </Button>
             </Stack>
           </form>
         </FormProvider>

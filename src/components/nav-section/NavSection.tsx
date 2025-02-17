@@ -59,7 +59,7 @@ function NavItem({ item }: NavItemProps) {
     fontWeight: active
       ? theme.typography.fontWeightBold
       : theme.typography.fontWeightLight,
-    bgcolor: active ? "#13A671" : "none", // Màu nền khi active
+      bgcolor: active ? "rgba(0, 128, 0, 0.1)" : "#E8F5E9", // Màu hover khi active và khi không active
     "&:hover": {
       bgcolor: "#13A671", // Màu khi hover
       color: "#FFFFFF", // Màu chữ khi hover
