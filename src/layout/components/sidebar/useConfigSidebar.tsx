@@ -23,6 +23,21 @@ function useConfigSidebar() {
           path: PATH_ADMIN_APP.userManagement.list,
           icon: <AssessmentIcon fontSize="medium" />,
         },
+        {
+          title: 'Tags',
+          path: PATH_ADMIN_APP.tag,
+          icon: <AssessmentIcon fontSize="medium" />,
+        },
+        {
+          title: 'WalletType',
+          path: PATH_ADMIN_APP.wallettype,
+          icon: <AssessmentIcon fontSize="medium" />,
+        },
+        {
+          title: 'Icons',
+          path: PATH_ADMIN_APP.icon,
+          icon: <AssessmentIcon fontSize="medium" />,
+        },
       
       ]
     },
