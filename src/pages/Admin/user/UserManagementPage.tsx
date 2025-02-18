@@ -87,7 +87,7 @@ const UserManagementPage = () => {
           itemsPerPage: rowsPerPage,
           currentPage: page + 1, // API dùng 1-based page
           searchValue: "",
-          sortBy: "userName", // Sắp xếp theo userName
+          sortBy: "fullName", // Sắp xếp theo userName
         },
         navigate,
       })
@@ -111,7 +111,7 @@ const UserManagementPage = () => {
       updateUser({
         data: {
           email: currentUser.email,
-          userName: currentUser.fullName,
+          fullName: currentUser.fullName,
           role: currentUser.roleName,
         },
         accountId: currentUser.accountId,
@@ -181,7 +181,7 @@ const UserManagementPage = () => {
                     <TableRow>
                       <TableCell>STT</TableCell>
                       <TableCell>Email</TableCell>
-                      <TableCell>User Name</TableCell>
+                      <TableCell>Full Name</TableCell>
                       <TableCell>Trạng Thái</TableCell>
                       <TableCell>Role</TableCell>
                       <TableCell>Hành Động</TableCell>
@@ -261,12 +261,12 @@ const UserManagementPage = () => {
               }}
             />
             <TextField
-              label="User Name"
+              label="Full Name"
               value={currentUser.fullName}
               onChange={(e) =>
                 setCurrentUser((prev) => ({
                   ...prev,
-                  userName: e.target.value,
+                  fullName: e.target.value,
                 }))
               }
             />
