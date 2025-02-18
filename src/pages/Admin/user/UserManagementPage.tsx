@@ -57,7 +57,7 @@ const UserManagementPage = () => {
 
   // Sắp xếp danh sách user theo userName (theo thứ tự bảng chữ cái)
   const sortedUsers = [...users].sort((a, b) =>
-    a.userName.localeCompare(b.userName)
+    a.fullName.localeCompare(b.fullName)
   );
 
   // Lọc bỏ các user có role "Admin" (không phân biệt hoa thường)
@@ -72,7 +72,7 @@ const UserManagementPage = () => {
   const [currentUser, setCurrentUser] = useState({
     accountId: "", // Dùng string cho GUID
     email: "",
-    userName: "",
+    fullName: "",
     roleName: "",
     status: "",
   });
@@ -99,7 +99,7 @@ const UserManagementPage = () => {
     setCurrentUser({
       accountId: user.id, // Sử dụng user.id nếu API trả về id
       email: user.email,
-      userName: user.userName,
+      fullName: user.fullName,
       roleName: user.roles && user.roles.length > 0 ? user.roles[0] : "",
       status: user.status,
     });
@@ -111,7 +111,7 @@ const UserManagementPage = () => {
       updateUser({
         data: {
           email: currentUser.email,
-          userName: currentUser.userName,
+          userName: currentUser.fullName,
           role: currentUser.roleName,
         },
         accountId: currentUser.accountId,
@@ -192,7 +192,7 @@ const UserManagementPage = () => {
                       <TableRow key={user.accountId}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.userName}</TableCell>
+                        <TableCell>{user.fullName}</TableCell>
                         <TableCell>
                           {user.emailConfirmed ? (
                             <CheckCircleOutlineIcon sx={{ color: "green" }} />
@@ -262,7 +262,7 @@ const UserManagementPage = () => {
             />
             <TextField
               label="User Name"
-              value={currentUser.userName}
+              value={currentUser.fullName}
               onChange={(e) =>
                 setCurrentUser((prev) => ({
                   ...prev,

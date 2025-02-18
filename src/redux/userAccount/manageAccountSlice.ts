@@ -69,7 +69,7 @@ const userSlice = createSlice({
         // Giả sử action.payload là mảng UserInfo[]
         const users = action.payload || [];
         // Sắp xếp theo thứ tự bảng chữ cái của userName
-        state.users = [...users].sort((a, b) => a.userName.localeCompare(b.userName));
+        state.users = [...users].sort((a, b) => a.fullName.localeCompare(b.fullName));
         state.numberItems = state.users.length;
         // Nếu backend trả về totalCount thì cập nhật thêm
         // state.totalCount = action.payload.totalCount || state.users.length;

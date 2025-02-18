@@ -11,7 +11,7 @@ export interface UserInfo {
   roleName: string;
   status: string;
   emailConfirmed : boolean;
-  userName: string;
+  fullName: string;
   roles: string;
 }
 export interface UserToCreate {
