@@ -3,24 +3,20 @@ import { ROUTES_API_DATADEFAULT } from 'constants/routesApiKeys';
 import { setMessageError, setMessageSuccess } from 'redux/auth/authSlice';
 import { getErrorMessage, handleResponseMessage, appendData } from 'utils'; 
 
-export const getDataDefaultThunk = async (thunkAPI: any) => {
-    try {
-      // Gọi API GET
-      console.log(ROUTES_API_DATADEFAULT.GET_DATADEFAULT());
-      const response = await axiosClient.get(
-        ROUTES_API_DATADEFAULT.GET_DATADEFAULT()
-      );
-      // Chìa khoá: trả về "response.data" để slice nhận được dữ liệu "thật"
-      // Thay vì return response
-      return response.data;
-  
-    } catch (error: any) {
-      const errorResponse = getErrorMessage(error, null);
-      const msg = handleResponseMessage(errorResponse?.errorMessage || '');
-      thunkAPI.dispatch(setMessageError(msg));
-      return thunkAPI.rejectWithValue(error);
-    }
-  };
+export const getDataDefaultThunk = async (params: any, thunkAPI: any) => {
+  try {
+    const response = await axiosClient.get(
+      ROUTES_API_DATADEFAULT.GET_DATADEFAULT()
+    );
+
+    return response.data; // Kiểm tra nếu response.data không chứa `data` thì có thể lỗi ở đây
+  } catch (error: any) {
+    const errorResponse = getErrorMessage(error, params?.navigate);
+    const msg = handleResponseMessage(errorResponse?.errorMessage || "");
+    thunkAPI.dispatch(setMessageError(msg));
+    return thunkAPI.rejectWithValue(error);
+  }
+};
 
   // export const updateDataDefaultThunk = async (params: any, thunkAPI: any) => {
   //   const { data, navigate } = params;

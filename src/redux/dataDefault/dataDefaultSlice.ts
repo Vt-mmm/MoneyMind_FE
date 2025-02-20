@@ -7,7 +7,7 @@ import { getDataDefaultThunk } from './dataDefaultThunk';
 // --------------------
 export const getDataDefault = createAsyncThunk(
   'DataDefault/getDataDefault',
-  getDataDefaultThunk
+  async (params, thunkAPI) => await getDataDefaultThunk(params, thunkAPI)
 );
 
 // --------------------
@@ -58,13 +58,14 @@ const dataDefaultSlice = createSlice({
       .addCase(getDataDefault.pending, (state) => {
         state.isLoading = true;
       })
+
       .addCase(getDataDefault.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        // Giả sử payload có dạng: { status, message, data }
-        state.dataDefault = action.payload.data;
-        state.message = action.payload.message;
+        // Nếu response không có `.data`, chỉ cần nhận trực tiếp `action.payload`
+        state.dataDefault = action.payload;
+        state.message = action.payload.message || "Dữ liệu đã tải thành công!";
       })
       .addCase(getDataDefault.rejected, (state, action) => {
         state.isLoading = false;

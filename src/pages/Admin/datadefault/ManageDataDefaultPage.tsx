@@ -1,91 +1,104 @@
-import React, { useEffect } from 'react';
-import { Box, Typography, CircularProgress } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { getDataDefault } from 'redux/dataDefault/dataDefaultSlice';
-import { useAppSelector } from 'redux/config';
-import { WalletCategory, Activity } from 'common/models/datadefault'; // Đường dẫn import có thể thay đổi
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  Box,
+  Card,
+  CardHeader,
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Paper,
+  Stack,
+  CircularProgress,
+  TablePagination,
+} from "@mui/material";
+import { useAppSelector } from "redux/config";
+import { getDataDefault } from "redux/dataDefault/dataDefaultSlice";
 
-const ManageDataDefaultPage: React.FC = () => {
+const ManageDataDefaultPage = () => {
   const dispatch = useDispatch();
-  const { dataDefault, isLoading, isError, message, errorMessage } = useAppSelector(
+  const { dataDefault, isLoading } = useAppSelector(
     (state) => state.dataDefault
   );
 
+  // State phân trang
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   useEffect(() => {
-    // Gọi thunk bằng cách dispatch(getDataDefault())
-    dispatch(getDataDefault);
-  }, [dispatch]);
+    dispatch(
+      getDataDefault()
+    );
+    console.log(dataDefault);
+  }, [page, rowsPerPage, dispatch]);
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        Data Default
-      </Typography>
-      {isLoading ? (
-        <CircularProgress />
-      ) : isError ? (
-        <Typography variant="h6" color="error">
-          {errorMessage}
-        </Typography>
-      ) : (
-        <Box>
-          <Typography variant="h6" color="green" gutterBottom>
-            {message}
-          </Typography>
+    <Container maxWidth="xl">
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h4">Quản lý Data Default</Typography>
+      </Stack>
 
-          <Box mb={4}>
-            <Typography variant="h5">Monthly Goal</Typography>
-            <Typography variant="body1">
-              Total Amount: {dataDefault.monthlyGoal.totalAmount}
-            </Typography>
-          </Box>
+      <Card>
+        <CardHeader title="Danh sách Data Default" />
+        <Box p={2}>
+          {isLoading ? (
+            <Stack alignItems="center" mt={2}>
+              <CircularProgress />
+            </Stack>
+          ) : (
+            <>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>STT</TableCell>
+                      <TableCell>Tên Danh Mục</TableCell>
+                      <TableCell>Mô Tả</TableCell>
+                      <TableCell>Màu Sắc</TableCell>
+                      <TableCell>Hoạt Động</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {dataDefault.walletCategories.map((category, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{category.name}</TableCell>
+                        <TableCell>{category.description}</TableCell>
+                        <TableCell>
+                          <Box
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              backgroundColor: category.color,
+                              borderRadius: "50%",
+                              display: "inline-block",
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {category.activities.map((activity, idx) => (
+                            <Typography key={idx} variant="body2">
+                              {activity.name}: {activity.description}
+                            </Typography>
+                          ))}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+              </TableContainer>
 
-          <Box mb={4}>
-            <Typography variant="h5">Goal Item</Typography>
-            <Typography variant="body1">
-              Description: {dataDefault.goalItem.description}
-            </Typography>
-            <Typography variant="body2">
-              Target: {dataDefault.goalItem.minTargetPercentage}% - {dataDefault.goalItem.maxTargetPercentage}%
-            </Typography>
-            <Typography variant="body2">
-              Amount: {dataDefault.goalItem.minAmount} - {dataDefault.goalItem.maxAmount}
-            </Typography>
-          </Box>
 
-          <Box>
-            <Typography variant="h5" gutterBottom>
-              Wallet Categories
-            </Typography>
-            {dataDefault.walletCategories.map((category: WalletCategory, index: number) => (
-              <Box
-                key={index}
-                mb={2}
-                p={2}
-                border="1px solid #ccc"
-                borderRadius={2}
-              >
-                <Typography variant="h6">{category.name}</Typography>
-                <Typography variant="body1">{category.description}</Typography>
-                <Typography variant="body2">Icon: {category.iconPath}</Typography>
-                <Typography variant="body2">Color: {category.color}</Typography>
-                <Typography variant="body2">
-                  Wallet Type ID: {category.walletTypeId}
-                </Typography>
-                <Box mt={1}>
-                  <Typography variant="subtitle1">Activities:</Typography>
-                  {category.activities.map((activity: Activity, idx: number) => (
-                    <Typography key={idx} variant="body2" ml={2}>
-                      {activity.name}: {activity.description}
-                    </Typography>
-                  ))}
-                </Box>
-              </Box>
-            ))}
-          </Box>
+            </>
+          )}
         </Box>
-      )}
-    </Box>
+      </Card>
+    </Container>
   );
 };
 
