@@ -2,6 +2,7 @@ import { path, pathRoot } from "utils";
 const ROOTS_AUTH = "/api/Authentications";
 const ROOTS_ACCOUNT = "/accounts";
 const ROOTS_USERS = "/api/admin/user";
+const ROOTS_DATADEFAULT = "/api/DefaultFile";
 
 export const ROUTES_API_AUTH = {
   LOGIN: path(ROOTS_AUTH, `/Login`),
@@ -39,4 +40,9 @@ export const ROUTES_API_USERS = {
   UPDATE_USER: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
 
   DELETE_USER: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
+};
+
+export const ROUTES_API_DATADEFAULT = {
+  GET_DATADEFAULT: () => path(ROOTS_DATADEFAULT),
+  // UPDATE_DATADEFAULT: () => path(ROOTS_DATADEFAULT),
 };

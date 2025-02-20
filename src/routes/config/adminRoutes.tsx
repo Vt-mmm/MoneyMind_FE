@@ -5,6 +5,7 @@ import {
   ManageIconPage,
   ManageTagPage,
   ManageWalletTypePage,
+  ManageDataDefault,
 } from 'pages/Admin';
 import { PATH_ADMIN_APP } from 'routes/paths';
 
@@ -34,5 +35,9 @@ export const adminRoutes: Route[] = [
     component: <ManageWalletTypePage />,
     index: true,
   },
-
+  {
+    path: PATH_ADMIN_APP.datadefault,
+    component: <ManageDataDefault />,
+    index: true,
+  },
 ];

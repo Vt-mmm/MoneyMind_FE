@@ -38,7 +38,11 @@ function useConfigSidebar() {
           path: PATH_ADMIN_APP.icon,
           icon: <AssessmentIcon fontSize="medium" />,
         },
-      
+        {
+          title: 'DataDefault',
+          path: PATH_ADMIN_APP.datadefault,
+          icon: <AssessmentIcon fontSize="medium" />,
+        },
       ]
     },
   ];
