@@ -1,7 +1,8 @@
 import { path, pathRoot } from "utils";
 const ROOTS_AUTH = "/api/Authentications";
-const ROOTS_ACCOUNT = "/accounts";
-const ROOTS_USERS = "/api/admin/user";
+const ROOTS_MANAGE_USERS = "/api/admin/user";
+const ROOTS_MANAGE_TAGS = "/api/tag";
+const ROOTS_MANAGE_WALLETTYPES = "/api/walletType";
 const ROOTS_DATADEFAULT = "/api/DefaultFile";
 
 export const ROUTES_API_AUTH = {
@@ -10,11 +11,6 @@ export const ROUTES_API_AUTH = {
   LOGIN_GOOGLE: "/api/Authentications/GoogleLogin",
 };
 
-export const ROUTES_API_ACCOUNT = {
-  ACCOUNT_INFORMATION: (accountId: number) =>
-    path(ROOTS_ACCOUNT, `/${accountId}`),
-  UPDATE_PASSWORD: (accountId: number) => path(ROOTS_ACCOUNT, `/${accountId}`),
-};
 export const ROUTES_API_USERS = {
   GET_ALL_USERS: ({
     itemsPerPage = 10,
@@ -28,21 +24,58 @@ export const ROUTES_API_USERS = {
     sortBy?: string;
   }) => {
     return path(
-      ROOTS_USERS,
+      ROOTS_MANAGE_USERS,
       `?searchValue=${searchValue}&currentPage=${currentPage}&itemsPerPage=${itemsPerPage}&sortBy=${sortBy}`
     );
   },
 
-  GET_USER_DETAIL: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
+  GET_USER_DETAIL: (accountId: number) =>
+    path(ROOTS_MANAGE_USERS, `/${accountId}`),
 
-  CREATE_USER: pathRoot(ROOTS_USERS),
+  CREATE_USER: pathRoot(ROOTS_MANAGE_USERS),
 
-  UPDATE_USER: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
+  UPDATE_USER: (accountId: number) => path(ROOTS_MANAGE_USERS, `/${accountId}`),
 
-  DELETE_USER: (accountId: number) => path(ROOTS_USERS, `/${accountId}`),
+  DELETE_USER: (accountId: number) => path(ROOTS_MANAGE_USERS, `/${accountId}`),
 };
 
 export const ROUTES_API_DATADEFAULT = {
   GET_DATADEFAULT: () => path(ROOTS_DATADEFAULT),
   // UPDATE_DATADEFAULT: () => path(ROOTS_DATADEFAULT),
+};
+export const ROUTES_API_TAGS = {
+  GET_ALL_TAGS: ({
+    itemsPerPage = 10,
+    currentPage = 1,
+    searchValue = "",
+    sortBy = "",
+  }: {
+    itemsPerPage?: string | number;
+    currentPage?: string | number;
+    searchValue?: string;
+    sortBy?: string;
+  }) => {
+    return path(
+      ROOTS_MANAGE_TAGS,
+      `?searchValue=${searchValue}&currentPage=${currentPage}&itemsPerPage=${itemsPerPage}&sortBy=${sortBy}`
+    );
+  },
+};
+export const ROUTES_API_WALLET_TYPES = {
+  GET_ALL_WALLET_TYPES: ({
+    itemsPerPage = 10,
+    currentPage = 1,
+    searchValue = "",
+    sortBy = "",
+  }: {
+    itemsPerPage?: string | number;
+    currentPage?: string | number;
+    searchValue?: string;
+    sortBy?: string;
+  }) => {
+    return path(
+      ROOTS_MANAGE_WALLETTYPES,
+      `?searchValue=${searchValue}&currentPage=${currentPage}&itemsPerPage=${itemsPerPage}&sortBy=${sortBy}`
+    );
+  },
 };
