@@ -41,6 +41,7 @@ export const ROUTES_API_USERS = {
 
 export const ROUTES_API_DATADEFAULT = {
   GET_DATADEFAULT: () => path(ROOTS_DATADEFAULT, "?includeWalletCategories=true&includeMonthlyGoal=true&includeGoalItem=true"),
+  UPDATE_DATADEFAULT: () => path(ROOTS_DATADEFAULT, "?includeWalletCategories=true&includeMonthlyGoal=true&includeGoalItem=true"),
 };
 export const ROUTES_API_TAGS = {
   GET_ALL_TAGS: ({

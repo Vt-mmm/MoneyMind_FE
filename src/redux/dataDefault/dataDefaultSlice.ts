@@ -1,18 +1,22 @@
 import { DataDefaultResponse } from './../../common/models/datadefault';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getDataDefaultThunk } from './dataDefaultThunk';
+import { getDataDefaultThunk, updateDataDefaultThunk } from './dataDefaultThunk';
+import { FormDataDefault } from '../../pages/Admin/datadefault/ManageDataDefaultPage';
 
-// --------------------
-// 1. Khai báo createAsyncThunk
-// --------------------
 export const getDataDefault = createAsyncThunk(
   'DataDefault/getDataDefault',
   async (params, thunkAPI) => await getDataDefaultThunk(params, thunkAPI)
 );
 
-// --------------------
-// 2. Định nghĩa interface State
-// --------------------
+export const updateDataDefault = createAsyncThunk<
+  any, // kiểu trả về, bạn có thể thay đổi theo nhu cầu
+  { data: FormDataDefault; optionParams?: any; navigate?: any } // kiểu của tham số nhận vào
+>(
+  'DataDefault/updateDataDefault',
+  async (params, thunkAPI) => await updateDataDefaultThunk(params, thunkAPI)
+);
+
+
 export interface DataDefaultState {
   dataDefault: DataDefaultResponse;
   isLoading: boolean;
@@ -22,9 +26,6 @@ export interface DataDefaultState {
   errorMessage: string;
 }
 
-// --------------------
-// 3. Khởi tạo giá trị initialState
-// --------------------
 const initialState: DataDefaultState = {
   dataDefault: {
     walletCategories: [],
@@ -44,26 +45,22 @@ const initialState: DataDefaultState = {
   errorMessage: '',
 };
 
-// --------------------
-// 4. Tạo Slice
-// --------------------
 const dataDefaultSlice = createSlice({
   name: 'DataDefault',
   initialState,
   reducers: {
-    // Nếu cần reducer sync, bạn có thể thêm vào đây.
+    // Nếu cần thêm reducer sync thì khai báo tại đây.
   },
   extraReducers: (builder) => {
     builder
+      // --- getDataDefault cases ---
       .addCase(getDataDefault.pending, (state) => {
         state.isLoading = true;
       })
-
       .addCase(getDataDefault.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        // Nếu response không có `.data`, chỉ cần nhận trực tiếp `action.payload`
         state.dataDefault = action.payload;
         state.message = action.payload.message || "Dữ liệu đã tải thành công!";
       })
@@ -72,12 +69,26 @@ const dataDefaultSlice = createSlice({
         state.isError = true;
         state.isSuccess = false;
         state.errorMessage = action.error.message || 'Failed to load data default';
+      })
+      // --- updateDataDefault cases ---
+      .addCase(updateDataDefault.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateDataDefault.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        // Nếu muốn cập nhật trực tiếp state.dataDefault, có thể làm ở đây.
+        // Trong trường hợp này, bạn đã dispatch getDataDefault từ thunk để refresh dữ liệu.
+        state.message = action.payload?.data?.message || "Cập nhật dữ liệu thành công!";
+      })
+      .addCase(updateDataDefault.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.errorMessage = action.error.message || 'Failed to update data default';
       });
   },
 });
 
-// --------------------
-// 5. Export reducer mặc định
-// --------------------
-const dataDefaultReducer = dataDefaultSlice.reducer;
-export default dataDefaultReducer;
+export default dataDefaultSlice.reducer;
