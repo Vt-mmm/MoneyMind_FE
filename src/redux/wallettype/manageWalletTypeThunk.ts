@@ -1,6 +1,6 @@
 import { axiosClient } from "axiosClient/axiosClient";
 import { ROUTES_API_WALLET_TYPES } from "constants/routesApiKeys";
-import { setMessageError, setMessageSuccess } from "redux/auth/authSlice";
+import { setMessageError } from "redux/auth/authSlice";
 import { getErrorMessage, handleResponseMessage } from "utils";
 
 // 1) Lấy danh sách wallet types

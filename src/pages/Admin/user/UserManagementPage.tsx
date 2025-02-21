@@ -33,7 +33,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-
+import SearchIcon from "@mui/icons-material/Search";
+import { InputAdornment } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "redux/config";
 import {
@@ -59,14 +60,25 @@ const UserManagementPage = () => {
   const sortedUsers = [...users].sort((a, b) =>
     a.fullName.localeCompare(b.fullName)
   );
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Lọc bỏ các user có role "Admin" (không phân biệt hoa thường)
   const filteredUsers = sortedUsers.filter((user) => {
-    if (user.roles && Array.isArray(user.roles)) {
-      return !user.roles.some((role) => role.toLowerCase() === "admin");
-    }
-    return true;
+    // Kiểm tra nếu có role và là một mảng, loại bỏ user có vai trò "Admin"
+    const isNotAdmin =
+      user.roles && Array.isArray(user.roles)
+        ? !user.roles.some((role) => role.toLowerCase() === "admin")
+        : true;
+
+    // Kiểm tra tìm kiếm theo fullName hoặc email (không phân biệt hoa thường)
+    const matchesSearch =
+      searchTerm === "" ||
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return isNotAdmin && matchesSearch;
   });
+
   // Các state cho Dialog cập nhật và xóa user
   const [openDialog, setOpenDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState({
@@ -86,13 +98,13 @@ const UserManagementPage = () => {
         optionParams: {
           itemsPerPage: rowsPerPage,
           currentPage: page + 1, // API dùng 1-based page
-          searchValue: "",
+          searchValue: searchTerm,
           sortBy: "fullName", // Sắp xếp theo userName
         },
         navigate,
       })
     );
-  }, [page, rowsPerPage, dispatch, navigate]);
+  }, [page, rowsPerPage, searchTerm, dispatch, navigate]);
 
   // Mở dialog cập nhật user
   const handleOpenUpdate = (user: any) => {
@@ -165,7 +177,23 @@ const UserManagementPage = () => {
         <Typography variant="h4">Quản lý người dùng</Typography>
         {/* Nút thêm người dùng đã bị loại bỏ theo yêu cầu trước */}
       </Stack>
-
+      {/* Thanh tìm kiếm */}
+      <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 3 }}>
+        <TextField
+          label="Tìm kiếm người dùng"
+          variant="outlined"
+          fullWidth
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Stack>
       <Card>
         <CardHeader title="Danh sách người dùng" />
         <Box p={2}>

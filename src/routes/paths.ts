@@ -27,6 +27,9 @@ export const PATH_ADMIN_APP = {
   },
 };
 export const PATH_MANAGER_APP = {
-  report: path(ROOTS_MANAGER_DASHBOARD, "/dashboard"),
   root: path(ROOTS_MANAGER_DASHBOARD, "/report"),
+  userManagement: {
+    root: path(ROOTS_MANAGER_DASHBOARD, "/user"),
+    list: path(ROOTS_MANAGER_DASHBOARD, "/users"),
+  },
 };

@@ -27,7 +27,7 @@ interface SidebarProps {
 
 function Sidebar({ openNav, onCloseNav }: SidebarProps) {
   const { pathname } = useLocation();
-  const { navAdmin } = useConfigSidebar();
+  const { navAdmin,navManager } = useConfigSidebar();
   const { userAuth } = useAppSelector((state) => state.auth);
   const isDesktop = useResponsive("up", "lg");
 
@@ -106,6 +106,60 @@ function Sidebar({ openNav, onCloseNav }: SidebarProps) {
                   <NavSection data={navItem.listNav} />
                 </Box>
                 {index < navAdmin.length - 1 && <Divider sx={{ mt: 2, opacity: 0.4, borderColor: "#16AB64" }} />}
+              </Box>
+            ) : null
+          )}
+        </Box>
+      )}
+            {userAuth?.roles?.includes(Role.MONEYMIND_MANAGER) && (
+        <Box>
+          {navManager.map((navItem, index) =>
+            navItem.missions && navItem.listNav ? (
+              <Box key={index} sx={{ mb: 3 }}>
+                <Typography
+                  variant="caption"
+                  sx={(theme) => ({
+                    ml: 1,
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    color: "#16AB64", // Tiêu đề màu xanh
+                    letterSpacing: 1.2,
+                    mb: 1,
+                  })}
+                >
+                  {navItem.missions}
+                </Typography>
+                <Box
+                  sx={{
+                    "& .MuiListItemButton-root": {
+                      transition: "all 0.3s",
+                      borderRadius: "8px",
+                      mb: 1,
+                      color: "#16AB64", // Mục mặc định màu xanh
+                    },
+                    "& .MuiListItemButton-root:hover": {
+                      backgroundColor: "#E8F5E9", // Màu nền khi hover
+                      color: "#0E804A", // Màu chữ khi hover
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                    },
+                    "& .Mui-selected": {
+                      backgroundColor: "#16AB64", // Màu nền khi được chọn
+                      color: "#FFFFFF", // Màu chữ khi được chọn
+                    },
+                    "& .Mui-selected:hover": {
+                      backgroundColor: "#139E5B", // Màu nền khi hover trong trạng thái chọn
+                      color: "#FFFFFF",
+                    },
+                    "& .MuiListItemText-primary": {
+                      fontSize: "1rem",
+                      fontWeight: "500",
+                      color: "inherit", // Giữ màu chữ rõ ràng
+                    },
+                  }}
+                >
+                  <NavSection data={navItem.listNav} />
+                </Box>
+                {index < navManager.length - 1 && <Divider sx={{ mt: 2, opacity: 0.4, borderColor: "#16AB64" }} />}
               </Box>
             ) : null
           )}
