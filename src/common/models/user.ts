@@ -1,8 +1,8 @@
 export interface UserAuth {
   userId: string;
-  username?: string; 
+  username?: string;
   email: string;
-  roles: string[]; 
+  roles: string[];
 }
 
 export interface UserInfo {
@@ -10,7 +10,7 @@ export interface UserInfo {
   email: string;
   roleName: string;
   status: string;
-  emailConfirmed : boolean;
+  emailConfirmed: boolean;
   fullName: string;
   roles: string;
 }
@@ -22,8 +22,8 @@ export interface UserToCreate {
 }
 
 export interface UserToUpdate {
-  accountId: number; 
-  email?: string; 
+  accountId: number;
+  email?: string;
   roleName?: string;
   status?: string;
   emailConfirmed?: boolean;

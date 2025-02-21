@@ -1,23 +1,22 @@
 // src/redux/user/userSlice.ts
 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAllUsersThunk,
-  getUserDetailThunk,
-  createNewUserThunk,
   updateUserThunk,
   deleteUserThunk,
-} from './manageAccountThunk';
-import { UserInfo } from 'common/models';
+} from "./manageAccountThunk";
+import { UserInfo } from "common/models";
 
 // --------------------
 // 1. Khai báo các createAsyncThunk
 // --------------------
-export const getAllUsers = createAsyncThunk('User/getAllUsers', getAllUsersThunk);
-export const getUserDetails = createAsyncThunk('User/getUserDetails', getUserDetailThunk);
-export const createNewUser = createAsyncThunk('User/createNewUser', createNewUserThunk);
-export const updateUser = createAsyncThunk('User/updateUser', updateUserThunk);
-export const deleteUser = createAsyncThunk('User/deleteUser', deleteUserThunk);
+export const getAllUsers = createAsyncThunk(
+  "User/getAllUsers",
+  getAllUsersThunk
+);
+export const updateUser = createAsyncThunk("User/updateUser", updateUserThunk);
+export const deleteUser = createAsyncThunk("User/deleteUser", deleteUserThunk);
 
 // --------------------
 // 2. Định nghĩa interface State
@@ -49,7 +48,7 @@ const initialState: UserState = {
 // 4. Tạo Slice
 // --------------------
 const userSlice = createSlice({
-  name: 'User',
+  name: "User",
   initialState,
   reducers: {
     // Nếu cần reducer sync, bạn có thể thêm vào đây.
@@ -69,7 +68,9 @@ const userSlice = createSlice({
         // Giả sử action.payload là mảng UserInfo[]
         const users = action.payload || [];
         // Sắp xếp theo thứ tự bảng chữ cái của userName
-        state.users = [...users].sort((a, b) => a.fullName.localeCompare(b.fullName));
+        state.users = [...users].sort((a, b) =>
+          a.fullName.localeCompare(b.fullName)
+        );
         state.numberItems = state.users.length;
         // Nếu backend trả về totalCount thì cập nhật thêm
         // state.totalCount = action.payload.totalCount || state.users.length;
@@ -79,38 +80,6 @@ const userSlice = createSlice({
         state.isError = true;
         state.isSuccess = false;
       })
-
-      // getUserDetails
-      .addCase(getUserDetails.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(getUserDetails.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isError = false;
-        state.isSuccess = true;
-        state.user = action.payload; // payload = {accountId, email, ...}
-      })
-      .addCase(getUserDetails.rejected, (state) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.isSuccess = false;
-      })
-
-      // createNewUser
-      .addCase(createNewUser.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(createNewUser.fulfilled, (state) => {
-        state.isLoading = false;
-        state.isError = false;
-        state.isSuccess = true;
-      })
-      .addCase(createNewUser.rejected, (state) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.isSuccess = false;
-      })
-
       // updateUser
       .addCase(updateUser.pending, (state) => {
         state.isLoading = true;
@@ -135,7 +104,9 @@ const userSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         // Giả sử action.payload chứa accountId của user đã bị xóa:
-        state.users = state.users.filter(user => user.accountId !== action.payload.accountId);
+        state.users = state.users.filter(
+          (user) => user.accountId !== action.payload.accountId
+        );
       })
       .addCase(deleteUser.rejected, (state) => {
         state.isLoading = false;
