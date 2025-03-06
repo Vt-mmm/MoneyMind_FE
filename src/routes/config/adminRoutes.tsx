@@ -6,6 +6,8 @@ import {
   ManageTagPage,
   ManageWalletTypePage,
   ManageDataDefault,
+  TransactionManagePage,
+  
 } from 'pages/Admin';
 import { PATH_ADMIN_APP } from 'routes/paths';
 
@@ -38,6 +40,11 @@ export const adminRoutes: Route[] = [
   {
     path: PATH_ADMIN_APP.datadefault,
     component: <ManageDataDefault />,
+    index: true,
+  },
+  {
+    path: PATH_ADMIN_APP.transaction,
+    component: < TransactionManagePage/>,
     index: true,
   },
 ];

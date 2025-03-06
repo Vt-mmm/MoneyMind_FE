@@ -4,13 +4,16 @@ const ROOTS_MANAGE_USERS = "/api/admin/user";
 const ROOTS_MANAGE_TAGS = "/api/tag";
 const ROOTS_MANAGE_WALLETTYPES = "/api/walletType";
 const ROOTS_DATADEFAULT = "/api/DefaultFile";
-
+const ROOTS_DASHBOARDS = "/api/admin";
 export const ROUTES_API_AUTH = {
   LOGIN: path(ROOTS_AUTH, `/Login`),
   REFRESH_TOKEN: path(ROOTS_AUTH, `/regeneration-tokens`),
   LOGIN_GOOGLE: "/api/Authentications/GoogleLogin",
 };
-
+export const ROUTES_API_DASHBOARD = {
+  TRANSACTIONS: `${ROOTS_DASHBOARDS}/transactions`,
+  USERS: `${ROOTS_DASHBOARDS}/user`,
+};
 export const ROUTES_API_USERS = {
   GET_ALL_USERS: ({
     itemsPerPage = 10,

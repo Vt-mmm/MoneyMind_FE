@@ -21,6 +21,7 @@ export const PATH_ADMIN_APP = {
   icon: path(ROOTS_ADMIN_DASHBOARD, "/icon"),
   wallettype: path(ROOTS_ADMIN_DASHBOARD, "/wallettype"),
   datadefault: path(ROOTS_ADMIN_DASHBOARD, "/datadefault"),
+  transaction: path(ROOTS_ADMIN_DASHBOARD, "/transaction"),
   userManagement: {
     root: path(ROOTS_ADMIN_DASHBOARD, "/user"),
     list: path(ROOTS_ADMIN_DASHBOARD, "/users"),
