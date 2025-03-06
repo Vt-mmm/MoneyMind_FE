@@ -3,9 +3,10 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import authReducer from "./auth/authSlice";
 import userReducer from "./userAccount/manageAccountSlice"
 import dataDefaultReducer from "./dataDefault/dataDefaultSlice"
-
+import dashboardReducer from "./dashboard/dashboardSlice"
 import tagReducer from "./tag/manageTagSlice"
 import walletTypeReducer from "./wallettype/manageWalletTypeSlice";
+import transactionReducer from "./transaction/transactionSlice";
 export const moneymind = configureStore({
   reducer: {
     auth: authReducer,
@@ -13,7 +14,8 @@ export const moneymind = configureStore({
     dataDefault: dataDefaultReducer,
     tag: tagReducer,
     wallet: walletTypeReducer,
-
+    dashboard: dashboardReducer,
+    transaction: transactionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

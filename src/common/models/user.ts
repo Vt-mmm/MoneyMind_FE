@@ -14,12 +14,6 @@ export interface UserInfo {
   fullName: string;
   roles: string;
 }
-export interface UserToCreate {
-  email: string;
-  roleName: string;
-  password?: string;
-  confirmPassword?: string;
-}
 
 export interface UserToUpdate {
   accountId: number;

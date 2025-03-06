@@ -1,393 +1,517 @@
-// MoneyMindDashboardPage.tsx
-import React, { useState, useMemo, ChangeEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-
-// MUI Components
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "redux/config";
+import { fetchUsers } from "redux/dashboard/dashboardSlice";
+import { Transaction } from "common/models";
+import { fetchTransactions } from "redux/transaction/transactionSlice";
 import {
   Container,
   Typography,
   Grid,
   Card,
-  CardHeader,
   CardContent,
+  CircularProgress,
   Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  Avatar,
+  useTheme,
+  MenuItem,
+  Select,
   FormControl,
   InputLabel,
-  Select,
-  MenuItem,
-  Alert,
-} from '@mui/material';
-
-// MUI Icons
-import BusinessIcon from '@mui/icons-material/Business';
-import BrandingWatermarkOutlinedIcon from '@mui/icons-material/BrandingWatermarkOutlined';
-import StoreIcon from '@mui/icons-material/Store';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import WarningIcon from '@mui/icons-material/Warning';
-import { SelectChangeEvent } from '@mui/material';
-// Recharts
+  Paper,
+  Button,
+} from "@mui/material";
 import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
   Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
+} from "recharts";
+import {
+  PeopleAlt as PeopleIcon,
+  Payments as PaymentsIcon,
+  AccountBalance as AccountBalanceIcon,
+} from "@mui/icons-material";
 
-// ----------------- KHAI BÁO KIỂU DỮ LIỆU -----------------
-
-// Giao diện (interface) cho một giao dịch
-interface Transaction {
-  id: string;
-  user: string;
-  category: string;
-  amount: number;
-  date: string; // dạng 'YYYY-MM-DD'
-}
-
-// Giao diện cho toàn bộ dữ liệu dashboard
-interface DashboardData {
-  totalUsers: number;
-  transactionsToday: number;
-  transactionsThisMonth: number;
-  totalSpentThisMonth: number;
-  recentTransactions: Transaction[];
-}
-
-// Giao diện cho props của AppWidgetSummaryOutline
-interface AppWidgetSummaryOutlineProps {
-  title: string;
-  total: number | string;
-  icon: React.ReactNode;
-  color?: 'primary' | 'secondary' | 'warning' | 'success';
-}
-
-// ----------------- COMPONENT WIDGET THỐNG KÊ -----------------
-
-const AppWidgetSummaryOutline: React.FC<AppWidgetSummaryOutlineProps> = ({
-  title,
-  total,
-  icon,
-  color = 'primary',
-}) => {
-  return (
-    <Card>
-      <CardContent>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Box>
-            <Typography variant="subtitle2" gutterBottom>
-              {title}
-            </Typography>
-            <Typography variant="h5">{total}</Typography>
-          </Box>
-          <Box color={`${color}.main`}>{icon}</Box>
-        </Box>
-      </CardContent>
-    </Card>
-  );
-};
-
-// ----------------- MOCK DATA -----------------
-
-const mockDashboardData: DashboardData = {
-  totalUsers: 320,
-  transactionsToday: 45,
-  transactionsThisMonth: 280,
-  totalSpentThisMonth: 1500000,
-  recentTransactions: [
-    { id: 'T001', user: 'Alice',   category: 'Ăn uống',   amount: 150000,  date: '2025-02-01' },
-    { id: 'T002', user: 'Bob',     category: 'Di chuyển', amount: 50000,   date: '2025-02-01' },
-    { id: 'T003', user: 'Charlie', category: 'Mua sắm',   amount: 300000,  date: '2025-02-02' },
-    { id: 'T004', user: 'Daisy',   category: 'Tiền nhà',  amount: 2500000, date: '2025-02-03' },
-    // Thêm bớt dữ liệu tuỳ ý...
-  ],
-};
-
-// ----------------- TRANG DASHBOARD CHÍNH -----------------
+const COLORS = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b"];
 
 const MoneyMindDashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const [chartDataPie, setChartDataPie] = useState<
+    { name: string; transactions: number }[]
+  >([]);
+  const [chartDataBar, setChartDataBar] = useState<
+    { name: string; totalValue: number }[]
+  >([]);
+  const [filterType, setFilterType] = useState<"day" | "month" | "year">(
+    "month"
+  );
+  const [dateFilter, setDateFilter] = useState({
+    startDate: "",
+    endDate: "",
+  });
 
-  // Tạm dùng state cục bộ thay thế cho dữ liệu từ API
-  const [dashboardData] = useState<DashboardData>(mockDashboardData);
+  const { users } = useAppSelector((state) => state.dashboard);
+  const { transactions } = useAppSelector((state) => state.transaction);
 
-  // ----------------- BIỂU ĐỒ TRÒN (PieChart) -----------------
-  // Gom nhóm "Tổng amount" theo danh mục (category)
-  const pieChartData = useMemo(() => {
-    const categoryMap: Record<string, number> = {};
+  useEffect(() => {
+    dispatch(fetchTransactions({ navigate }));
+    dispatch(fetchUsers({ navigate }));
+  }, [dispatch, navigate]);
 
-    dashboardData.recentTransactions.forEach((trx) => {
-      if (!categoryMap[trx.category]) {
-        categoryMap[trx.category] = 0;
-      }
-      categoryMap[trx.category] += trx.amount;
-    });
-
-    // Chuyển về dạng mảng: { name, value }
-    return Object.entries(categoryMap).map(([cat, total]) => ({
-      name: cat,
-      value: total,
-    }));
-  }, [dashboardData]);
-  // ----------------- BIỂU ĐỒ XU HƯỚNG (LineChart) -----------------
-  const lineChartData = useMemo(() => {
-    return dashboardData.recentTransactions.map((trx) => ({
-      date: trx.date,
-      totalAmount: trx.amount,
-    }));
-  }, [dashboardData]);
-
-  // ----------------- BIỂU ĐỒ HEATMAP -----------------
-  // Chuyển đổi dữ liệu sang định dạng Heatmap
-  const heatmapData = useMemo(() => {
-    const weekDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    const hours = Array.from({ length: 24 }, (_, i) => i); // 0 - 23 giờ
-    const gridData: number[][] = Array(7).fill(null).map(() => Array(24).fill(0));
-
-    dashboardData.recentTransactions.forEach((trx) => {
-      const date = new Date(trx.date);
-      const day = date.getDay(); // 0 - Chủ nhật, 6 - Thứ bảy
-      const hour = date.getHours(); // Giả sử mỗi giao dịch có giờ ngẫu nhiên
-
-      gridData[day][hour] += trx.amount;
-    });
-
-    return { labelsX: hours.map(String), labelsY: weekDays, data: gridData };
-  }, [dashboardData]);
-
-  // ----------------- CẢNH BÁO CHI TIÊU BẤT THƯỜNG -----------------
-  const averageSpending = useMemo(() => {
-    const total = dashboardData.recentTransactions.reduce((sum, trx) => sum + trx.amount, 0);
-    return total / dashboardData.recentTransactions.length;
-  }, [dashboardData]);
-
-  const isSpendingTooHigh = dashboardData.totalSpentThisMonth > averageSpending * 3;
-
-
-  // Màu sắc cho các lát (slice) trong PieChart
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#ad19c2'];
-
-  // ----------------- BIỂU ĐỒ CỘT (BarChart) + LỌC -----------------
-  // Filter có 3 mode: day, month, year (theo ngày, tháng, năm)
-  const [filterMode, setFilterMode] = useState<'day' | 'month' | 'year'>('day');
-
-  // Hàm xử lý khi thay đổi filter
-  const handleChangeFilterMode = (event: SelectChangeEvent<"day" | "month" | "year">) => {
-    setFilterMode(event.target.value as 'day' | 'month' | 'year');
-  };
-  // Hàm giúp cắt chuỗi date '2025-02-03' -> theo format
-  // day => '2025-02-03'
-  // month => '2025-02'
-  // year => '2025'
-  const formatDate = (dateStr: string, mode: 'day' | 'month' | 'year') => {
-    const [yyyy, mm, dd] = dateStr.split('-');
-    switch (mode) {
-      case 'year':
-        return yyyy;
-      case 'month':
-        return `${yyyy}-${mm}`;
-      default:
-        // 'day'
-        return dateStr;
+  useEffect(() => {
+    if (transactions && Array.isArray(transactions)) {
+      processPieChartData(transactions, filterType);
+      processBarChartData(transactions, filterType, dateFilter);
     }
-  };
+  }, [transactions, filterType, dateFilter]);
 
-  // Tính toán dữ liệu cho BarChart dựa theo filterMode
-  const barChartData = useMemo(() => {
-    const mapDateToTotal: Record<string, number> = {};
+  const hasTransactions =
+    Array.isArray(transactions) && transactions.length > 0;
+  const hasUsers = Array.isArray(users) && users.length > 0;
+  const isLoading = transactions === null || users === null;
 
-    dashboardData.recentTransactions.forEach((trx) => {
-      const key = formatDate(trx.date, filterMode);
-      if (!mapDateToTotal[key]) {
-        mapDateToTotal[key] = 0;
+  const processPieChartData = (
+    transactions: Transaction[],
+    type: "day" | "month" | "year"
+  ) => {
+    let groupedData: Record<string, number> = {};
+    transactions.forEach((transaction) => {
+      if (!transaction.transactionDate) return;
+      const date = new Date(transaction.transactionDate);
+      if (isNaN(date.getTime())) return;
+
+      let key: string;
+      if (type === "day") {
+        key = date.toLocaleDateString("vi-VN");
+      } else if (type === "month") {
+        key = `${date.getFullYear()}-${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}`;
+      } else {
+        key = `${date.getFullYear()}`;
       }
-      mapDateToTotal[key] += trx.amount;
+      groupedData[key] = (groupedData[key] || 0) + 1;
     });
 
-    // Convert sang mảng { date, totalAmount }
-    return Object.entries(mapDateToTotal).map(([dateKey, total]) => ({
-      dateKey,
-      totalAmount: total,
+    const formattedData = Object.keys(groupedData).map((key) => ({
+      name: key,
+      transactions: groupedData[key],
     }));
-  }, [dashboardData, filterMode]);
+    setChartDataPie(formattedData);
+  };
+
+  const processBarChartData = (
+    transactions: Transaction[],
+    type: "day" | "month" | "year",
+    filter: { startDate: string; endDate: string }
+  ) => {
+    let filteredTransactions = transactions;
+
+    // Apply date range filter if provided
+    if (filter.startDate && filter.endDate) {
+      const start = new Date(filter.startDate);
+      const end = new Date(filter.endDate);
+      filteredTransactions = transactions.filter((t) => {
+        const date = new Date(t.transactionDate);
+        return date >= start && date <= end;
+      });
+    }
+
+    let groupedData: Record<string, number> = {};
+    filteredTransactions.forEach((transaction) => {
+      if (!transaction.transactionDate || !transaction.amount) return;
+      const date = new Date(transaction.transactionDate);
+      if (isNaN(date.getTime())) return;
+
+      let key: string;
+      if (type === "day") {
+        key = date.toLocaleDateString("vi-VN");
+      } else if (type === "month") {
+        key = `${date.getFullYear()}-${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}`;
+      } else {
+        key = `${date.getFullYear()}`;
+      }
+      groupedData[key] = (groupedData[key] || 0) + transaction.amount;
+    });
+
+    const formattedData = Object.keys(groupedData).map((key) => ({
+      name: key,
+      totalValue: groupedData[key],
+    }));
+    setChartDataBar(formattedData);
+  };
+
+  const handleFilterApply = () => {
+    processBarChartData(transactions || [], filterType, dateFilter);
+  };
+
+  const handleUsersCardClick = () => navigate("/admin/users");
+  const handleTransactionsCardClick = () => navigate("/admin/transaction");
+
+  const totalTransactionValue = hasTransactions
+    ? transactions.reduce(
+        (sum, transaction) => sum + (transaction.amount || 0),
+        0
+      )
+    : 0;
 
   return (
-    <Container maxWidth="xl">
-      {/* Tiêu đề trang */}
-      <Typography variant="h4" sx={{ mb: 5 }}>
-        Quản lý chi tiêu - Dashboard
-      </Typography>
-      {isSpendingTooHigh && (
-        <Alert severity="warning" icon={<WarningIcon />}>
-          Cảnh báo! Chi tiêu tháng này cao hơn mức trung bình! Hãy kiểm tra lại các khoản chi.
-        </Alert>
-      )}
+    <Container
+      maxWidth="xl"
+      sx={{
+        py: 5,
+        background:
+          "linear-gradient(135deg, rgb(240, 253, 244), rgb(240, 253, 244))",
+      }}
+    >
+<Box sx={{ mb: 5 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            color: "#1cc88a",
+            background: "#1cc88a",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Tổng Quan Quản Lý Chi Tiêu
+        </Typography>
 
+      </Box>
+      {/* Thống kê tổng quan */}
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper
+            elevation={6}
+            sx={{
+              p: 3,
+              background: "linear-gradient(135deg, #4e73df10, #ffffff)", // Gradient nhẹ từ xanh dương
+              borderRadius: 2,
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-5px)",
+                boxShadow: "0 7px 14px rgba(78, 115, 223, 0.3)",
+              },
+            }}
+            onClick={handleUsersCardClick}
+          >
+            <Avatar sx={{ bgcolor: "#4e73df", mb: 2, width: 48, height: 48 }}>
+              <PeopleIcon />
+            </Avatar>
+            <Typography
+              variant="subtitle2"
+              sx={{ color: "#4e73df", fontWeight: 500 }} // Màu tiêu đề đồng bộ với thẻ
+              gutterBottom
+            >
+              Người dùng
+            </Typography>
+            <Typography variant="h5" sx={{ color: "#4e73df", fontWeight: 600 }}>
+              {hasUsers ? users.length : 0}
+            </Typography>
+          </Paper>
+        </Grid>
 
-      {/* Các ô thống kê nhanh */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper
+            elevation={6}
+            sx={{
+              p: 3,
+              background: "linear-gradient(135deg, #1cc88a10, #ffffff)", // Gradient nhẹ từ xanh lá
+              borderRadius: 2,
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-5px)",
+                boxShadow: "0 7px 14px rgba(28, 200, 138, 0.3)",
+              },
+            }}
+            onClick={handleTransactionsCardClick}
+          >
+            <Avatar sx={{ bgcolor: "#1cc88a", mb: 2, width: 48, height: 48 }}>
+              <PaymentsIcon />
+            </Avatar>
+            <Typography
+              variant="subtitle2"
+              sx={{ color: "#1cc88a", fontWeight: 500 }} // Màu tiêu đề đồng bộ với thẻ
+              gutterBottom
+            >
+              Tổng giao dịch
+            </Typography>
+            <Typography variant="h5" sx={{ color: "#1cc88a", fontWeight: 600 }}>
+              {hasTransactions ? transactions.length : 0}
+            </Typography>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper
+            elevation={6}
+            sx={{
+              p: 3,
+              background: "linear-gradient(135deg, #36b9cc10, #ffffff)", // Gradient nhẹ từ xanh ngọc
+              borderRadius: 2,
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-5px)",
+                boxShadow: "0 7px 14px rgba(54, 185, 204, 0.3)",
+              },
+            }}
+          >
+            <Avatar sx={{ bgcolor: "#36b9cc", mb: 2, width: 48, height: 48 }}>
+              <AccountBalanceIcon />
+            </Avatar>
+            <Typography
+              variant="subtitle2"
+              sx={{ color: "#36b9cc", fontWeight: 500 }} // Màu tiêu đề đồng bộ với thẻ
+              gutterBottom
+            >
+              Tổng giá trị
+            </Typography>
+            <Typography variant="h5" sx={{ color: "#36b9cc", fontWeight: 600 }}>
+              {totalTransactionValue.toLocaleString()} đ
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Biểu đồ và chi tiết */}
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={3}>
-          <AppWidgetSummaryOutline
-            title="Tổng số người dùng"
-            total={dashboardData.totalUsers}
-            icon={<BusinessIcon fontSize="large" />}
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <AppWidgetSummaryOutline
-            title="Giao dịch hôm nay"
-            total={dashboardData.transactionsToday}
-            icon={<BrandingWatermarkOutlinedIcon fontSize="large" />}
-            color="secondary"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <AppWidgetSummaryOutline
-            title="Giao dịch trong tháng"
-            total={dashboardData.transactionsThisMonth}
-            icon={<StoreIcon fontSize="large" />}
-            color="warning"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <AppWidgetSummaryOutline
-            title="Tổng chi tiêu tháng"
-            total={dashboardData.totalSpentThisMonth.toLocaleString('vi-VN') + ' đ'}
-            icon={<StoreIcon fontSize="large" />}
-            color="success"
-          />
-        </Grid>
-      </Grid>
-
-      {/* Bảng "Giao dịch gần đây" */}
-      <Grid container spacing={3} mt={3}>
-        <Grid item xs={12}>
-          <Card>
-            <CardHeader title="Giao dịch mới nhất" />
-            <TableContainer component={Paper}>
-              <Table aria-label="recent-transactions-table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Mã GD</TableCell>
-                    <TableCell>Người dùng</TableCell>
-                    <TableCell>Danh mục</TableCell>
-                    <TableCell>Số tiền (VNĐ)</TableCell>
-                    <TableCell>Ngày</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {dashboardData.recentTransactions.map((trx) => (
-                    <TableRow
-                      key={trx.id}
-                      sx={{ cursor: 'pointer' }}
-                      onClick={() => navigate(`/transactions/${trx.id}`)}
-                    >
-                      <TableCell>{trx.id}</TableCell>
-                      <TableCell>{trx.user}</TableCell>
-                      <TableCell>{trx.category}</TableCell>
-                      <TableCell>{trx.amount.toLocaleString('vi-VN')}</TableCell>
-                      <TableCell>{trx.date}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <Box display="flex" justifyContent="flex-end" p={2}>
-                <Typography
-                  variant="body2"
-                  mr={0.5}
-                  component={Link}
-                  to="/transactions"
-                  style={{ textDecoration: 'none' }}
-                >
-                  Xem tất cả
-                </Typography>
-                <KeyboardArrowRightIcon fontSize="small" />
-              </Box>
-            </TableContainer>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* BarChart + PieChart */}
-      <Grid container spacing={3} mt={3}>
         <Grid item xs={12} md={6}>
-          <Card sx={{ height: '100%' }}>
-            <CardHeader
-              title="Thống kê giao dịch"
-              subheader="Theo ngày / tháng / năm"
-              action={
-                <Box mr={2} mt={1}>
-                  <FormControl size="small" variant="outlined">
-                    <InputLabel id="filter-mode-label">Chế độ</InputLabel>
-                    <Select
-                      labelId="filter-mode-label"
-                      value={filterMode}
-                      label="Chế độ"
-                      onChange={(e) => setFilterMode(e.target.value as 'day' | 'month' | 'year')}
-                      sx={{ width: 120 }}
-                    >
-                      <MenuItem value="day">Ngày</MenuItem>
-                      <MenuItem value="month">Tháng</MenuItem>
-                      <MenuItem value="year">Năm</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
+          <Paper
+            elevation={4}
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              background: "#ffffff",
+              height: "100%",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ color: "#2d3748", fontWeight: 600 }}
+              >
+                Phân Phối Giao Dịch
+              </Typography>
+              <Box sx={{ mt: 2, display: "flex", gap: 2, alignItems: "center" }}>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel sx={{ color: "#36b9cc" }}>Lọc theo</InputLabel>
+            <Select
+              value={filterType}
+              onChange={(e) =>
+                setFilterType(e.target.value as "day" | "month" | "year")
               }
-            />
-            <CardContent>
-              <Box sx={{ width: '100%', height: 350 }}>
-                <ResponsiveContainer>
-                  <BarChart data={barChartData} margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" angle={-45} textAnchor="end" height={60} />
-                    <YAxis tickFormatter={(value) => value.toLocaleString('vi-VN') + ' đ'} />
-                    <Tooltip formatter={(value) => value.toLocaleString('vi-VN') + ' đ'} />
-                    <Legend />
-                    <Bar dataKey="totalAmount" name="Tổng chi tiêu" fill="#4caf50" barSize={50} radius={[5, 5, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
+              sx={{
+                color: "#36b9cc",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#36b9cc",
+                },
+              }}
+            >
+              <MenuItem value="day">Ngày</MenuItem>
+              <MenuItem value="month">Tháng</MenuItem>
+              <MenuItem value="year">Năm</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+            </Box>
+            <Box sx={{ width: "100%", height: 350 }}>
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={chartDataPie}
+                    dataKey="transactions"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="80%"
+                    label={({ name, percent }) =>
+                      `${name} (${(percent * 100).toFixed(0)}%)`
+                    }
+                    labelLine={true}
+                  >
+                    {chartDataPie.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => `${value} giao dịch`}
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Card sx={{ height: '100%' }}>
-            <CardHeader title="Tỷ lệ chi tiêu theo danh mục" />
-            <CardContent>
-              <Box sx={{ width: '100%', height: 350 }}>
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label>
-                      {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => value.toLocaleString('vi-VN') + ' đ'} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
+          <Paper
+            elevation={4}
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              background: "#ffffff",
+              height: "100%",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 24px rgba(54, 185, 204, 0.2)",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ color: "#2d3748", fontWeight: 600 }}
+              >
+                Tổng Giá Trị Giao Dịch
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}></Box>
+            </Box>
+
+            {/* Bộ lọc ngày tháng */}
+            <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
+              <input
+                type="date"
+                value={dateFilter.startDate}
+                onChange={(e) =>
+                  setDateFilter({ ...dateFilter, startDate: e.target.value })
+                }
+                style={{
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #36b9cc",
+                }}
+              />
+              <input
+                type="date"
+                value={dateFilter.endDate}
+                onChange={(e) =>
+                  setDateFilter({ ...dateFilter, endDate: e.target.value })
+                }
+                style={{
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #36b9cc",
+                }}
+              />
+              <Button
+                variant="contained"
+                onClick={handleFilterApply}
+                sx={{
+                  bgcolor: "#36b9cc",
+                  "&:hover": { bgcolor: "#2c9faf" },
+                }}
+              >
+                Áp dụng
+              </Button>
+            </Box>
+
+            <Box sx={{ width: "100%", height: 350 }}>
+              <ResponsiveContainer>
+                <BarChart
+                  data={chartDataBar}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "#666", fontSize: 12 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis
+                    tick={{ fill: "#666", fontSize: 12 }}
+                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [
+                      `${value.toLocaleString()} đ`,
+                      "Tổng giá trị",
+                    ]}
+                    contentStyle={{
+                      backgroundColor: "rgba(255, 255, 255, 0.95)",
+                      borderRadius: "8px",
+                      border: "1px solid #36b9cc",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                    }}
+                    labelStyle={{ color: "#36b9cc" }}
+                  />
+                  <Legend />
+                  <Bar
+                    dataKey="totalValue"
+                    fill="#36b9cc"
+                    radius={[4, 4, 0, 0]}
+                    barSize={30}
+                    animationDuration={1000}
+                  >
+                    {chartDataBar.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          entry.totalValue > 0 ? "#36b9cc" : "#e74a3b" // Màu đỏ cho giá trị âm nếu có
+                        }
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
         </Grid>
       </Grid>
+
+      {isLoading && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            bgcolor: "rgba(0,0,0,0.4)",
+            zIndex: 9999,
+          }}
+        >
+          <CircularProgress sx={{ color: "#4e73df" }} />
+        </Box>
+      )}
     </Container>
   );
 };

@@ -6,6 +6,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 import { PATH_ADMIN_APP, PATH_MANAGER_APP } from 'routes/paths';
 
@@ -30,6 +31,11 @@ function useConfigSidebar() {
           icon: <PeopleIcon fontSize="medium" />,
         },
         {
+          title: 'Giao dịch',
+          path: PATH_ADMIN_APP.transaction,
+          icon: <ReceiptIcon fontSize="medium" />,
+        },
+        {
           title: 'Tags',
           path: PATH_ADMIN_APP.tag,
           icon: <LabelIcon fontSize="medium" />,
@@ -49,6 +55,7 @@ function useConfigSidebar() {
           path: PATH_ADMIN_APP.datadefault,
           icon: <SettingsApplicationsIcon fontSize="medium" />,
         },
+
       ]
     },
   ];
