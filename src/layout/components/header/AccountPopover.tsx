@@ -75,9 +75,9 @@ function AccountPopover() {
         <Stack alignItems="start" sx={{ ml: 1, my: 0.5 }}>
           <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
             {userAuth?.roles?.includes(Role.MONEYMIND_ADMIN)
-              ? "Quản Trị Viên"
+              ? "Admin"
               : userAuth?.roles?.includes(Role.MONEYMIND_MANAGER)
-              ? "Quản Lý"
+              ? "Manager"
               : "header.account"}
           </Typography>
           <Typography

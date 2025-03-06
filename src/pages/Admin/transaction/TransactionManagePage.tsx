@@ -19,74 +19,85 @@ import {
   Table,
   Divider,
   CircularProgress,
-
+  TablePagination,
 } from "@mui/material";
+import { styled } from "@mui/system";
 import { Transaction } from "common/models";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "redux/config";
-import { fetchTransactions } from "redux/transaction/transactionSlice";  // ✅ Import từ transactionSlice
+import { fetchTransactions } from "redux/transaction/transactionSlice";
 import {
-    Payments as PaymentsIcon,
-    AttachMoney as MoneyIcon,
-    Description as DescriptionIcon,
-    CalendarToday as CalendarIcon,
-    Person as PersonIcon,
-  } from "@mui/icons-material";
-  
+  Payments as PaymentsIcon,
+  AttachMoney as MoneyIcon,
+  Description as DescriptionIcon,
+  CalendarToday as CalendarIcon,
+  Person as PersonIcon,
+} from "@mui/icons-material";
+
+// Định nghĩa màu sắc
+const PRIMARY_GREEN = "#16ab65"; // Giữ màu xanh lá làm điểm nhấn
+const NEUTRAL_GREY = "#616161"; // Màu xám trung tính cho text
+const LIGHT_GREY_BG = "#fafafa"; // Nền nhạt cho header và hover
+
+const fadeInSlideUp = { "0%": { opacity: 0, transform: "translateY(10px)" }, "100%": { opacity: 1, transform: "translateY(0)" } };
+const AnimatedTableRow = styled(TableRow)({ animation: `fadeInSlideUp 0.4s ease-out forwards`, "@keyframes fadeInSlideUp": fadeInSlideUp });
+const StyledTableCell = styled(TableCell)(({ theme }) => ({ padding: theme.spacing(1.5), verticalAlign: "middle" }));
+
 export default function TransactionManagementPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { transactions, isLoading } = useAppSelector(
-    (state) => state.transaction
-  );
+  const { transactions, isLoading } = useAppSelector((state) => state.transaction);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    // Check if data is loaded
-    const hasTransactions =
-    Array.isArray(filteredTransactions) && filteredTransactions.length > 0;
+  const hasTransactions = filteredTransactions.length > 0;
 
-  // Format currency function
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(amount);
+    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(amount);
   };
+
   useEffect(() => {
     dispatch(
       fetchTransactions({
-        optionParams: {
-          searchValue: searchTerm,
-        },
+        optionParams: { searchValue: searchTerm, itemsPerPage: rowsPerPage, currentPage: page + 1 },
         navigate,
       })
     );
-  }, [searchTerm, dispatch, navigate]);
+  }, [searchTerm, page, rowsPerPage, dispatch, navigate]);
+
   useEffect(() => {
     if (transactions && Array.isArray(transactions)) {
-      const filtered = transactions.filter((transaction) => 
-        transaction.recipientName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+      const filtered = transactions.filter((transaction) =>
+        transaction.recipientName.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredTransactions(filtered);
     }
   }, [transactions, searchTerm]);
+
+  const handleChangePage = (event: unknown, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
-    <Container maxWidth="xl">
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h4">Quản lý Giao dịch</Typography>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
+        <Typography variant="h4" fontWeight="bold" sx={{ color: PRIMARY_GREEN }}>
+          Transaction Management
+        </Typography>
       </Stack>
 
       {/* Thanh tìm kiếm */}
-      <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+      <Stack direction="row" spacing={2} sx={{ mb: 4 }}>
         <TextField
-          label="Tìm kiếm giao dịch"
+          label="Search transactions by recipient"
           variant="outlined"
           fullWidth
           value={searchTerm}
@@ -94,230 +105,164 @@ export default function TransactionManagementPage() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon color="action" />
+                <SearchIcon sx={{ color: NEUTRAL_GREY }} />
               </InputAdornment>
             ),
+          }}
+          sx={{
+            maxWidth: 500,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { borderColor: NEUTRAL_GREY },
+              "&:hover fieldset": { borderColor: PRIMARY_GREEN },
+              "&.Mui-focused fieldset": { borderColor: PRIMARY_GREEN },
+            },
+            "& .MuiInputLabel-root": { color: NEUTRAL_GREY },
+            "& .MuiInputLabel-root.Mui-focused": { color: PRIMARY_GREEN },
           }}
         />
       </Stack>
 
-      <Card>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card
-            sx={{
-              height: "100%",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-              transition: "transform 0.3s",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-              },
-            }}
-          >
-
-          </Card>
-        </Grid>
+      <Card elevation={3} sx={{ borderRadius: 2, bgcolor: "#fff" }}>
         <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Card sx={{ boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}>
-            <Box
-              sx={{
-                p: 2,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-
-            </Box>
-            <Divider />
-            <TableContainer component={Box} sx={{ maxHeight: 440 }}>
-              <Table stickyHeader aria-label="recent-transactions-table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: "bold", bgcolor: "#f5f5f5" }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <DescriptionIcon fontSize="small" sx={{ mr: 1 }} />
-                        Mã GD
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", bgcolor: "#f5f5f5" }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <MoneyIcon fontSize="small" sx={{ mr: 1 }} />
-                        Số tiền
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", bgcolor: "#f5f5f5" }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <DescriptionIcon fontSize="small" sx={{ mr: 1 }} />
-                        Mô tả
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", bgcolor: "#f5f5f5" }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <CalendarIcon fontSize="small" sx={{ mr: 1 }} />
-                        Ngày GD
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold", bgcolor: "#f5f5f5" }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <PersonIcon fontSize="small" sx={{ mr: 1 }} />
-                        Người nhận
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={7} align="center">
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            p: 3,
-                          }}
-                        >
-                          <CircularProgress />
+          <Grid item xs={12}>
+            <Box sx={{ p: 3 }}>
+              <TableContainer component={Box} sx={{ maxHeight: 500 }}>
+                <Table stickyHeader aria-label="recent-transactions-table">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: LIGHT_GREY_BG }}>
+                      <StyledTableCell sx={{ fontWeight: "bold", color: NEUTRAL_GREY }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <DescriptionIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
+                          Transaction ID
                         </Box>
-                      </TableCell>
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: "bold", color: NEUTRAL_GREY }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <MoneyIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
+                          Amount
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: "bold", color: NEUTRAL_GREY }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <DescriptionIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
+                          Description
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: "bold", color: NEUTRAL_GREY }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <CalendarIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
+                          Transaction Date
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: "bold", color: NEUTRAL_GREY }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <PersonIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
+                          Recipient
+                        </Box>
+                      </StyledTableCell>
                     </TableRow>
-                  ) : !hasTransactions ? (
-                    <TableRow>
-                      <TableCell colSpan={7} align="center">
-                        <Box
-                          sx={{
-                            p: 4,
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            opacity: 0.7,
-                          }}
-                        >
-                          <PaymentsIcon
+                  </TableHead>
+                  <TableBody>
+                    {isLoading ? (
+                      <TableRow>
+                        <StyledTableCell colSpan={5} align="center">
+                          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                            <CircularProgress sx={{ color: PRIMARY_GREEN }} size={40} />
+                            <Typography variant="body2" color={NEUTRAL_GREY} ml={2}>
+                              Loading data...
+                            </Typography>
+                          </Box>
+                        </StyledTableCell>
+                      </TableRow>
+                    ) : !hasTransactions ? (
+                      <TableRow>
+                        <StyledTableCell colSpan={5} align="center">
+                          <Box
                             sx={{
-                              fontSize: 60,
-                              color: "text.secondary",
-                              mb: 2,
+                              p: 4,
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              bgcolor: LIGHT_GREY_BG,
+                              borderRadius: 2,
                             }}
-                          />
-                          <Typography
-                            variant="subtitle1"
-                            color="text.secondary"
                           >
-                            Không có giao dịch nào
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredTransactions.map(
-                      (transaction: Transaction, index: number) => (
-                        <TableRow
-                          key={transaction.id || index}
-                          sx={{
-                            "&:hover": {
-                              bgcolor: "rgba(0, 0, 0, 0.04)",
-                              cursor: "pointer",
-                            },
-                          }}
-                        >
-                          <TableCell>
-                            <Typography
-                              variant="body2"
-                              sx={{ fontWeight: "medium" }}
-                            >
-                              {transaction.id}
+                            <PaymentsIcon sx={{ fontSize: 60, color: NEUTRAL_GREY, mb: 2 }} />
+                            <Typography variant="subtitle1" sx={{ color: NEUTRAL_GREY }}>
+                              No transactions found
                             </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                fontWeight: "bold",
-                                color:
-                                  transaction.amount > 2000000
-                                    ? "error.main"
-                                    : "success.main",
-                              }}
-                            >
-                              {formatCurrency(transaction.amount)}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                maxWidth: 200,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {transaction.description}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <CalendarIcon
-                                fontSize="small"
-                                color="action"
-                                sx={{ mr: 1, fontSize: 16 }}
-                              />
-                              <Typography variant="body2">
-                                {new Date(
-                                  transaction.transactionDate
-                                ).toLocaleDateString("vi-VN", {
-                                  year: "numeric",
-                                  month: "2-digit",
-                                  day: "2-digit",
-                                })}
+                          </Box>
+                        </StyledTableCell>
+                      </TableRow>
+                    ) : (
+                      filteredTransactions
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((transaction: Transaction, index: number) => (
+                          <AnimatedTableRow
+                            key={transaction.id || index}
+                            sx={{ "&:hover": { bgcolor: LIGHT_GREY_BG }, transition: "background-color 0.2s" }}
+                          >
+                            <StyledTableCell>
+                              <Typography variant="body2" sx={{ fontWeight: "medium", color: NEUTRAL_GREY }}>
+                                {transaction.id}
                               </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                              alignItems="center"
-                            >
-                              <Avatar
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <Typography
+                                variant="body2"
                                 sx={{
-                                  width: 24,
-                                  height: 24,
-                                  bgcolor: `${theme.palette.primary.light}`,
-                                  fontSize: 14,
+                                  fontWeight: "bold",
+                                  color: transaction.amount > 2000000 ? "#d32f2f" : PRIMARY_GREEN,
                                 }}
                               >
-                                {transaction.recipientName?.charAt(0) || "?"}
-                              </Avatar>
-                              <Typography variant="body2">
-                                {transaction.recipientName}
+                                {formatCurrency(transaction.amount)}
                               </Typography>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            {hasTransactions && (
-              <Box
-                sx={{
-                  p: 2,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderTop: 1,
-                  borderColor: "divider",
-                }}
-              ></Box>
-            )}
-          </Card>
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <Typography
+                                variant="body2"
+                                sx={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: NEUTRAL_GREY }}
+                              >
+                                {transaction.description}
+                              </Typography>
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <Box sx={{ display: "flex", alignItems: "center" }}>
+                                <CalendarIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
+                                <Typography variant="body2" sx={{ color: NEUTRAL_GREY }}>
+                                  {new Date(transaction.transactionDate).toLocaleDateString("vi-VN", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                                </Typography>
+                              </Box>
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <Stack direction="row" spacing={1} alignItems="center">
+                                <Avatar sx={{ width: 28, height: 28, bgcolor: PRIMARY_GREEN, fontSize: 14 }}>
+                                  {transaction.recipientName?.charAt(0) || "?"}
+                                </Avatar>
+                                <Typography variant="body2" sx={{ color: NEUTRAL_GREY }}>{transaction.recipientName}</Typography>
+                              </Stack>
+                            </StyledTableCell>
+                          </AnimatedTableRow>
+                        ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {hasTransactions && (
+                <TablePagination
+                  component="div"
+                  count={filteredTransactions.length}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  rowsPerPageOptions={[10, 20, 50]}
+                  sx={{ mt: 2, "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": { color: NEUTRAL_GREY } }}
+                />
+              )}
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
       </Card>
     </Container>
   );
