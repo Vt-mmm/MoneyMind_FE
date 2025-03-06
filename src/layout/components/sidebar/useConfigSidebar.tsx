@@ -13,7 +13,7 @@ import { PATH_ADMIN_APP, PATH_MANAGER_APP } from 'routes/paths';
 function useConfigSidebar() {
   const navAdmin = [
     {
-      missions: 'Tổng Quan',
+      missions: 'Overview',
       listNav: [
         {
           title: 'Dashboard',
@@ -23,15 +23,15 @@ function useConfigSidebar() {
       ],
     },
     {
-      missions: 'Quản Lý',
+      missions: 'Management',
       listNav: [
         {
-          title: 'Người dùng',
+          title: 'Users',
           path: PATH_ADMIN_APP.userManagement.list,
           icon: <PeopleIcon fontSize="medium" />,
         },
         {
-          title: 'Giao dịch',
+          title: 'Transactions',
           path: PATH_ADMIN_APP.transaction,
           icon: <ReceiptIcon fontSize="medium" />,
         },
@@ -41,7 +41,7 @@ function useConfigSidebar() {
           icon: <LabelIcon fontSize="medium" />,
         },
         {
-          title: 'WalletType',
+          title: 'Wallet Type',
           path: PATH_ADMIN_APP.wallettype,
           icon: <AccountBalanceWalletIcon fontSize="medium" />,
         },
@@ -51,17 +51,17 @@ function useConfigSidebar() {
           icon: <InsertEmoticonIcon fontSize="medium" />,
         },
         {
-          title: 'DataDefault',
+          title: 'Default Data',
           path: PATH_ADMIN_APP.datadefault,
           icon: <SettingsApplicationsIcon fontSize="medium" />,
         },
-
-      ]
+      ],
     },
   ];
+
   const navManager = [
     {
-      missions: 'Tổng Quan',
+      missions: 'Overview',
       listNav: [
         {
           title: 'Report',
@@ -71,17 +71,15 @@ function useConfigSidebar() {
       ],
     },
     {
-      missions: 'Quản Lý',
+      missions: 'Management',
       listNav: [
         {
-          title: 'Người dùng',
+          title: 'Users',
           path: PATH_MANAGER_APP.userManagement.list,
           icon: <PeopleIcon fontSize="medium" />,
         },
-       
-      ]
+      ],
     },
-
   ];
 
   return { navAdmin, navManager };

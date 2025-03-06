@@ -93,7 +93,7 @@ const MoneyMindDashboardPage: React.FC = () => {
 
       let key: string;
       if (type === "day") {
-        key = date.toLocaleDateString("vi-VN");
+        key = date.toLocaleDateString("en-US");
       } else if (type === "month") {
         key = `${date.getFullYear()}-${(date.getMonth() + 1)
           .toString()
@@ -118,7 +118,6 @@ const MoneyMindDashboardPage: React.FC = () => {
   ) => {
     let filteredTransactions = transactions;
 
-    // Apply date range filter if provided
     if (filter.startDate && filter.endDate) {
       const start = new Date(filter.startDate);
       const end = new Date(filter.endDate);
@@ -136,7 +135,7 @@ const MoneyMindDashboardPage: React.FC = () => {
 
       let key: string;
       if (type === "day") {
-        key = date.toLocaleDateString("vi-VN");
+        key = date.toLocaleDateString("en-US");
       } else if (type === "month") {
         key = `${date.getFullYear()}-${(date.getMonth() + 1)
           .toString()
@@ -177,7 +176,7 @@ const MoneyMindDashboardPage: React.FC = () => {
           "linear-gradient(135deg, rgb(240, 253, 244), rgb(240, 253, 244))",
       }}
     >
-<Box sx={{ mb: 5 }}>
+      <Box sx={{ mb: 5 }}>
         <Typography
           variant="h4"
           sx={{
@@ -188,10 +187,10 @@ const MoneyMindDashboardPage: React.FC = () => {
             WebkitTextFillColor: "transparent",
           }}
         >
-          Tổng Quan Quản Lý Chi Tiêu
+          Spending Management Overview
         </Typography>
-
       </Box>
+
       {/* Thống kê tổng quan */}
       <Grid container spacing={3} sx={{ mb: 5 }}>
         <Grid item xs={12} sm={6} md={3}>
@@ -199,7 +198,7 @@ const MoneyMindDashboardPage: React.FC = () => {
             elevation={6}
             sx={{
               p: 3,
-              background: "linear-gradient(135deg, #4e73df10, #ffffff)", // Gradient nhẹ từ xanh dương
+              background: "linear-gradient(135deg, #4e73df10, #ffffff)",
               borderRadius: 2,
               transition: "all 0.3s ease",
               "&:hover": {
@@ -214,10 +213,10 @@ const MoneyMindDashboardPage: React.FC = () => {
             </Avatar>
             <Typography
               variant="subtitle2"
-              sx={{ color: "#4e73df", fontWeight: 500 }} // Màu tiêu đề đồng bộ với thẻ
+              sx={{ color: "#4e73df", fontWeight: 500 }}
               gutterBottom
             >
-              Người dùng
+              Users
             </Typography>
             <Typography variant="h5" sx={{ color: "#4e73df", fontWeight: 600 }}>
               {hasUsers ? users.length : 0}
@@ -230,7 +229,7 @@ const MoneyMindDashboardPage: React.FC = () => {
             elevation={6}
             sx={{
               p: 3,
-              background: "linear-gradient(135deg, #1cc88a10, #ffffff)", // Gradient nhẹ từ xanh lá
+              background: "linear-gradient(135deg, #1cc88a10, #ffffff)",
               borderRadius: 2,
               transition: "all 0.3s ease",
               "&:hover": {
@@ -245,10 +244,10 @@ const MoneyMindDashboardPage: React.FC = () => {
             </Avatar>
             <Typography
               variant="subtitle2"
-              sx={{ color: "#1cc88a", fontWeight: 500 }} // Màu tiêu đề đồng bộ với thẻ
+              sx={{ color: "#1cc88a", fontWeight: 500 }}
               gutterBottom
             >
-              Tổng giao dịch
+              Total Transactions
             </Typography>
             <Typography variant="h5" sx={{ color: "#1cc88a", fontWeight: 600 }}>
               {hasTransactions ? transactions.length : 0}
@@ -261,7 +260,7 @@ const MoneyMindDashboardPage: React.FC = () => {
             elevation={6}
             sx={{
               p: 3,
-              background: "linear-gradient(135deg, #36b9cc10, #ffffff)", // Gradient nhẹ từ xanh ngọc
+              background: "linear-gradient(135deg, #36b9cc10, #ffffff)",
               borderRadius: 2,
               transition: "all 0.3s ease",
               "&:hover": {
@@ -275,13 +274,13 @@ const MoneyMindDashboardPage: React.FC = () => {
             </Avatar>
             <Typography
               variant="subtitle2"
-              sx={{ color: "#36b9cc", fontWeight: 500 }} // Màu tiêu đề đồng bộ với thẻ
+              sx={{ color: "#36b9cc", fontWeight: 500 }}
               gutterBottom
             >
-              Tổng giá trị
+              Total Value
             </Typography>
             <Typography variant="h5" sx={{ color: "#36b9cc", fontWeight: 600 }}>
-              {totalTransactionValue.toLocaleString()} đ
+              {totalTransactionValue.toLocaleString()} VND
             </Typography>
           </Paper>
         </Grid>
@@ -311,29 +310,29 @@ const MoneyMindDashboardPage: React.FC = () => {
                 variant="h6"
                 sx={{ color: "#2d3748", fontWeight: 600 }}
               >
-                Phân Phối Giao Dịch
+                Transaction Distribution
               </Typography>
               <Box sx={{ mt: 2, display: "flex", gap: 2, alignItems: "center" }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel sx={{ color: "#36b9cc" }}>Lọc theo</InputLabel>
-            <Select
-              value={filterType}
-              onChange={(e) =>
-                setFilterType(e.target.value as "day" | "month" | "year")
-              }
-              sx={{
-                color: "#36b9cc",
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#36b9cc",
-                },
-              }}
-            >
-              <MenuItem value="day">Ngày</MenuItem>
-              <MenuItem value="month">Tháng</MenuItem>
-              <MenuItem value="year">Năm</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel sx={{ color: "#36b9cc" }}>Filter By</InputLabel>
+                  <Select
+                    value={filterType}
+                    onChange={(e) =>
+                      setFilterType(e.target.value as "day" | "month" | "year")
+                    }
+                    sx={{
+                      color: "#36b9cc",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#36b9cc",
+                      },
+                    }}
+                  >
+                    <MenuItem value="day">Day</MenuItem>
+                    <MenuItem value="month">Month</MenuItem>
+                    <MenuItem value="year">Year</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
             </Box>
             <Box sx={{ width: "100%", height: 350 }}>
               <ResponsiveContainer>
@@ -358,7 +357,7 @@ const MoneyMindDashboardPage: React.FC = () => {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number) => `${value} giao dịch`}
+                    formatter={(value: number) => `${value} transactions`}
                     contentStyle={{
                       backgroundColor: "#fff",
                       borderRadius: "8px",
@@ -396,7 +395,7 @@ const MoneyMindDashboardPage: React.FC = () => {
                 variant="h6"
                 sx={{ color: "#2d3748", fontWeight: 600 }}
               >
-                Tổng Giá Trị Giao Dịch
+                Total Transaction Value
               </Typography>
               <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}></Box>
             </Box>
@@ -435,7 +434,7 @@ const MoneyMindDashboardPage: React.FC = () => {
                   "&:hover": { bgcolor: "#2c9faf" },
                 }}
               >
-                Áp dụng
+                Apply
               </Button>
             </Box>
 
@@ -459,8 +458,8 @@ const MoneyMindDashboardPage: React.FC = () => {
                   />
                   <Tooltip
                     formatter={(value: number) => [
-                      `${value.toLocaleString()} đ`,
-                      "Tổng giá trị",
+                      `${value.toLocaleString()} VND`,
+                      "Total Value",
                     ]}
                     contentStyle={{
                       backgroundColor: "rgba(255, 255, 255, 0.95)",
@@ -482,7 +481,7 @@ const MoneyMindDashboardPage: React.FC = () => {
                       <Cell
                         key={`cell-${index}`}
                         fill={
-                          entry.totalValue > 0 ? "#36b9cc" : "#e74a3b" // Màu đỏ cho giá trị âm nếu có
+                          entry.totalValue > 0 ? "#36b9cc" : "#e74a3b"
                         }
                       />
                     ))}

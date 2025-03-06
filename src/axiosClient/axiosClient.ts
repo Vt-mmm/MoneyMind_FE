@@ -4,7 +4,7 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 axios.defaults.headers.delete['Access-Control-Allow-Origin'] = '*';
 
 const axiosClient = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL || 'http://localhost:8080', // Use the backend base URL here
+  baseURL: process.env.REACT_APP_BASE_URL || 'https://app-moneymind-swd392.azurewebsites.net', 
 });
 
 const axiosServiceAddress = axios.create({
@@ -15,7 +15,7 @@ const axiosServiceAddress = axios.create({
 });
 
 const axiosFormData = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL || 'http://localhost:8080', // Cấu hình backend là localhost:7080
+  baseURL: process.env.REACT_APP_BASE_URL || 'https://app-moneymind-swd392.azurewebsites.net', 
   headers: {
     'Content-Type': 'multipart/form-data',
   },

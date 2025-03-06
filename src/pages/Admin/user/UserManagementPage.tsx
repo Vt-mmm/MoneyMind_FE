@@ -27,7 +27,10 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  alpha,
+  styled,
 } from "@mui/material";
+import { keyframes } from '@emotion/react';
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -43,46 +46,73 @@ import {
   updateUser,
 } from "redux/userAccount/manageAccountSlice";
 
+// Animation cho table row
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+// Styled components với màu xanh lá
+const StyledCard = styled(Card)(({ theme }) => ({
+  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+  borderRadius: theme.spacing(2),
+  transition: 'transform 0.2s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:hover': {
+    backgroundColor: alpha('#e8f5e9', 0.1),
+    transition: 'background-color 0.2s ease-in-out',
+  },
+  animation: `${fadeIn} 0.3s ease-in-out`,
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  borderRadius: theme.spacing(1),
+  padding: theme.spacing(1, 2),
+  textTransform: 'none',
+}));
+
 const UserManagementPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // Lấy danh sách user, trạng thái và tổng số bản ghi từ Redux
+  
   const { users, isLoading, totalCount } = useAppSelector(
     (state) => state.userAccount
   );
 
-  // State phân trang: page là index (0-based) của MUI, currentPage của API có thể là 1-based
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  // Sắp xếp danh sách user theo userName (theo thứ tự bảng chữ cái)
+  
   const sortedUsers = [...users].sort((a, b) =>
     a.fullName.localeCompare(b.fullName)
   );
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Lọc bỏ các user có role "Admin" (không phân biệt hoa thường)
   const filteredUsers = sortedUsers.filter((user) => {
-    // Kiểm tra nếu có role và là một mảng, loại bỏ user có vai trò "Admin"
     const isNotAdmin =
       user.roles && Array.isArray(user.roles)
         ? !user.roles.some((role) => role.toLowerCase() === "admin")
         : true;
-
-    // Kiểm tra tìm kiếm theo fullName hoặc email (không phân biệt hoa thường)
     const matchesSearch =
       searchTerm === "" ||
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-
     return isNotAdmin && matchesSearch;
   });
 
-  // Các state cho Dialog cập nhật và xóa user
   const [openDialog, setOpenDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState({
-    accountId: "", // Dùng string cho GUID
+    accountId: "",
     email: "",
     fullName: "",
     roleName: "",
@@ -97,19 +127,18 @@ const UserManagementPage = () => {
       getAllUsers({
         optionParams: {
           itemsPerPage: rowsPerPage,
-          currentPage: page + 1, // API dùng 1-based page
+          currentPage: page + 1,
           searchValue: searchTerm,
-          sortBy: "fullName", // Sắp xếp theo userName
+          sortBy: "fullName",
         },
         navigate,
       })
     );
   }, [page, rowsPerPage, searchTerm, dispatch, navigate]);
 
-  // Mở dialog cập nhật user
   const handleOpenUpdate = (user: any) => {
     setCurrentUser({
-      accountId: user.id, // Sử dụng user.id nếu API trả về id
+      accountId: user.id,
       email: user.email,
       fullName: user.fullName,
       roleName: user.roles && user.roles.length > 0 ? user.roles[0] : "",
@@ -133,18 +162,16 @@ const UserManagementPage = () => {
     setOpenDialog(false);
   };
 
-  // Mở dialog xác nhận xóa user
   const handleConfirmDelete = (user: any) => {
     setUserToDelete(user);
     setOpenDeleteDialog(true);
   };
 
-  // Thực hiện xóa user
   const handleDelete = async () => {
     if (userToDelete) {
       await dispatch(
         deleteUser({
-          accountId: userToDelete.id, // Sử dụng userToDelete.id thay vì accountId
+          accountId: userToDelete.id,
           navigate,
         })
       );
@@ -153,34 +180,41 @@ const UserManagementPage = () => {
     setUserToDelete(null);
   };
 
-  // Xử lý thay đổi page (MUI truyền newPage là 0-based)
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  // Xử lý thay đổi số dòng trên mỗi trang
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // reset page về 0 khi thay đổi số dòng
+    setPage(0);
   };
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Stack
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ mb: 3 }}
+        sx={{ mb: 4 }}
       >
-        <Typography variant="h4">Quản lý người dùng</Typography>
-        {/* Nút thêm người dùng đã bị loại bỏ theo yêu cầu trước */}
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #4caf50, #81c784)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          User Management
+        </Typography>
       </Stack>
-      {/* Thanh tìm kiếm */}
-      <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 3 }}>
+
+      <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 4 }}>
         <TextField
-          label="Tìm kiếm người dùng"
+          label="Search Users"
           variant="outlined"
           fullWidth
           value={searchTerm}
@@ -188,75 +222,130 @@ const UserManagementPage = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon color="action" />
+                <SearchIcon sx={{ color: '#4caf50' }} />
               </InputAdornment>
             ),
           }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 12,
+              backgroundColor: 'white',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+              '& fieldset': {
+                borderColor: '#81c784',
+              },
+              '&:hover fieldset': {
+                borderColor: '#4caf50',
+              },
+            },
+          }}
         />
       </Stack>
-      <Card>
-        <CardHeader title="Danh sách người dùng" />
-        <Box p={2}>
+
+      <StyledCard>
+        <CardHeader 
+          title="User List"
+          titleTypographyProps={{ 
+            variant: 'h6',
+            fontWeight: 600,
+            color: '#4caf50'
+          }}
+          sx={{ bgcolor: '#e8f5e9', borderBottom: '1px solid #81c784' }}
+        />
+        <Box p={3}>
           {isLoading ? (
             <Stack alignItems="center" mt={2}>
-              <CircularProgress />
+              <CircularProgress size={40} thickness={4} sx={{ color: '#4caf50' }} />
             </Stack>
           ) : (
             <>
-              <TableContainer component={Paper}>
-                <Table>
+              <TableContainer component={Paper} elevation={0}>
+                <Table sx={{ minWidth: 650 }}>
                   <TableHead>
-                    <TableRow>
-                      <TableCell>STT</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Full Name</TableCell>
-                      <TableCell>Trạng Thái</TableCell>
-                      <TableCell>Role</TableCell>
-                      <TableCell>Hành Động</TableCell>
+                    <TableRow sx={{ backgroundColor: '#e8f5e9' }}>
+                      {["No.", "Email", "Full Name", "Status", "Role", "Actions"].map((header) => (
+                        <TableCell 
+                          key={header}
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: '#2e7d32',
+                            py: 2,
+                            borderBottom: '2px solid #81c784'
+                          }}
+                        >
+                          {header}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {filteredUsers.map((user, index) => (
-                      <TableRow key={user.accountId}>
+                      <StyledTableRow key={user.accountId}>
                         <TableCell>{index + 1}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.fullName}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="text.primary">
+                            {user.email}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight={500}>
+                            {user.fullName}
+                          </Typography>
+                        </TableCell>
                         <TableCell>
                           {user.emailConfirmed ? (
-                            <CheckCircleOutlineIcon sx={{ color: "green" }} />
+                            <CheckCircleOutlineIcon 
+                              sx={{ color: '#4caf50', fontSize: 24 }}
+                            />
                           ) : (
-                            <HighlightOffIcon sx={{ color: "red" }} />
+                            <HighlightOffIcon 
+                              sx={{ color: '#d32f2f', fontSize: 24 }}
+                            />
                           )}
                         </TableCell>
                         <TableCell>
-                          {user.roles && user.roles.length > 0
-                            ? user.roles[0]
-                            : ""}
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              bgcolor: '#c8e6c9',
+                              color: '#2e7d32',
+                              px: 1,
+                              py: 0.5,
+                              borderRadius: 1,
+                              display: 'inline-block'
+                            }}
+                          >
+                            {user.roles && user.roles.length > 0 ? user.roles[0] : ""}
+                          </Typography>
                         </TableCell>
-
                         <TableCell>
                           <Stack direction="row" spacing={1}>
                             <IconButton
-                              color="primary"
+                              sx={{ 
+                                color: '#4caf50',
+                                '&:hover': { bgcolor: '#c8e6c9' }
+                              }}
                               onClick={() => handleOpenUpdate(user)}
                             >
                               <EditIcon />
                             </IconButton>
                             <IconButton
-                              color="error"
+                              sx={{ 
+                                color: '#d32f2f',
+                                '&:hover': { bgcolor: '#ffcdd2' }
+                              }}
                               onClick={() => handleConfirmDelete(user)}
                             >
                               <DeleteIcon />
                             </IconButton>
                           </Stack>
                         </TableCell>
-                      </TableRow>
+                      </StyledTableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
 
-              {/* Thêm TablePagination */}
               <TablePagination
                 component="div"
                 count={totalCount || 0}
@@ -265,27 +354,50 @@ const UserManagementPage = () => {
                 rowsPerPage={rowsPerPage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 rowsPerPageOptions={[10, 20, 50]}
+                sx={{
+                  '& .MuiTablePagination-toolbar': {
+                    py: 1,
+                  },
+                  '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                    color: '#2e7d32',
+                  },
+                }}
               />
             </>
           )}
         </Box>
-      </Card>
+      </StyledCard>
 
-      {/* Dialog cập nhật user */}
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          }
+        }}
       >
-        <DialogTitle>Cập nhật người dùng</DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={2} mt={1}>
+        <DialogTitle sx={{ bgcolor: '#4caf50', color: 'white', py: 2 }}>
+          Update User
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Stack spacing={3} mt={2}>
             <TextField
-              label="Email (không thể thay đổi)"
+              label="Email (cannot be changed)"
               value={currentUser.email}
               InputProps={{
                 readOnly: true,
+              }}
+              variant="outlined"
+              fullWidth
+              sx={{ 
+                '& .MuiOutlinedInput-root': { 
+                  borderRadius: 1,
+                  '& fieldset': { borderColor: '#81c784' },
+                } 
               }}
             />
             <TextField
@@ -297,11 +409,19 @@ const UserManagementPage = () => {
                   fullName: e.target.value,
                 }))
               }
+              variant="outlined"
+              fullWidth
+              sx={{ 
+                '& .MuiOutlinedInput-root': { 
+                  borderRadius: 1,
+                  '& fieldset': { borderColor: '#81c784' },
+                  '&:hover fieldset': { borderColor: '#4caf50' },
+                } 
+              }}
             />
-            <FormControl fullWidth>
-              <InputLabel id="role-select-label">Role</InputLabel>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel sx={{ color: '#2e7d32' }}>Role</InputLabel>
               <Select
-                labelId="role-select-label"
                 label="Role"
                 value={currentUser.roleName}
                 onChange={(e) =>
@@ -310,6 +430,11 @@ const UserManagementPage = () => {
                     roleName: e.target.value,
                   }))
                 }
+                sx={{ 
+                  borderRadius: 1,
+                  '& fieldset': { borderColor: '#81c784' },
+                  '&:hover fieldset': { borderColor: '#4caf50' },
+                }}
               >
                 <MenuItem value="User">User</MenuItem>
                 <MenuItem value="Manager">Manager</MenuItem>
@@ -317,31 +442,63 @@ const UserManagementPage = () => {
             </FormControl>
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
-          <Button variant="contained" onClick={handleSubmit}>
-            Lưu thay đổi
-          </Button>
+        <DialogActions sx={{ p: 2 }}>
+          <StyledButton 
+            onClick={() => setOpenDialog(false)}
+            sx={{ color: '#2e7d32' }}
+          >
+            Cancel
+          </StyledButton>
+          <StyledButton
+            variant="contained"
+            onClick={handleSubmit}
+            sx={{ 
+              bgcolor: '#4caf50',
+              '&:hover': { bgcolor: '#388e3c' }
+            }}
+          >
+            Save Changes
+          </StyledButton>
         </DialogActions>
       </Dialog>
-      {/* Dialog xác nhận xóa user */}
+
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
         maxWidth="xs"
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          }
+        }}
       >
-        <DialogTitle>Xác nhận xóa</DialogTitle>
-        <DialogContent dividers>
-          <Typography>
-            Bạn có chắc chắn muốn xóa người dùng{" "}
-            <strong>{userToDelete?.email}</strong> không?
+        <DialogTitle sx={{ bgcolor: '#d32f2f', color: 'white', py: 2 }}>
+          Confirm Deletion
+        </DialogTitle>
+        <DialogContent dividers sx={{ py: 3 }}>
+          <Typography variant="body1">
+            Are you sure you want to delete the user{" "}
+            <strong>{userToDelete?.email}</strong>?
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)}>Hủy</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>
-            Xóa
-          </Button>
+        <DialogActions sx={{ p: 2 }}>
+          <StyledButton 
+            onClick={() => setOpenDeleteDialog(false)}
+            sx={{ color: '#2e7d32' }}
+          >
+            Cancel
+          </StyledButton>
+          <StyledButton
+            variant="contained"
+            onClick={handleDelete}
+            sx={{ 
+              bgcolor: '#d32f2f',
+              '&:hover': { bgcolor: '#b71c1c' }
+            }}
+          >
+            Delete
+          </StyledButton>
         </DialogActions>
       </Dialog>
     </Container>

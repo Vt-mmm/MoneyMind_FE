@@ -1,67 +1,115 @@
 // @mui
 import { Box, Button, Container, Typography } from "@mui/material";
-import images from "assets";
 import { Helmet } from "components";
 import { StyledContent } from "./styles";
+
+// Inject global keyframes using a CSS-in-JS solution or external CSS
+import { css } from "@emotion/react";
+import { Global } from "@emotion/react";
 
 // ----------------------------------------------------------------------
 
 function Page404() {
   const handleNavigateLogin = () => {
-    window.location.href = "/auth/login"; // Điều hướng đến trang login
+    window.location.href = "/auth/login"; // Navigate to login page
   };
 
+  // Define the keyframes for the bounce animation
+  const bounceAnimation = css`
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-20px);
+      }
+      60% {
+        transform: translateY(-10px);
+      }
+    }
+  `;
 
   return (
     <>
-      <Helmet title="404 - Trang không tồn tại" />
+      {/* Inject global styles */}
+      <Global styles={bounceAnimation} />
 
-      <Container>
+      <Helmet title="404 - Page Not Found" />
+
+      <Container maxWidth="sm">
         <StyledContent
           sx={{
             textAlign: "center",
             alignItems: "center",
-            bgcolor: "#f9f9f9",
-            p: 4,
-            borderRadius: 2,
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+            bgcolor: "#ffffff",
+            p: { xs: 3, md: 5 },
+            mt: { xs: 4, md: 8 },
+            borderRadius: 3,
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+            transition: "all 0.3s ease-in-out",
+            "&:hover": {
+              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.18)",
+            },
           }}
         >
-          <Box component="img" src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCEvzt9ilh8D0TPZRvKwD-UQhX135oYFE1PA&s"} alt="404" sx={{ width: 300, mb: 2 }} />
-          
+          <Box
+            component="img"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCEvzt9ilh8D0TPZRvKwD-UQhX135oYFE1PA&s"
+            alt="404 Illustration"
+            sx={{
+              width: { xs: 200, md: 300 },
+              mb: 3,
+              animation: "bounce 2s infinite", // Reference the animation
+            }}
+          />
+
           <Typography
-            variant="h3"
+            variant="h2"
             paragraph
             sx={{
               color: "#16ab65",
-              fontWeight: "bold",
+              fontWeight: "700",
+              letterSpacing: "-0.5px",
             }}
           >
-            Oops! Trang không tồn tại
+            Oops! Page Not Found
           </Typography>
 
-          <Typography sx={{ color: "text.secondary", mb: 3 }}>
-            Chúng tôi không thể tìm thấy trang bạn yêu cầu. Hãy kiểm tra lại địa chỉ hoặc quay lại trang chính.
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+              mb: 4,
+              maxWidth: 400,
+              mx: "auto",
+              lineHeight: 1.6,
+            }}
+          >
+            It seems we can’t find the page you’re looking for. Double-check the URL or head back to the login page.
           </Typography>
 
           <Box display="flex" justifyContent="center" gap={2}>
-
-
             <Button
               size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{
-                borderColor: "#16ab65",
-                color: "#16ab65",
-                "&:hover": {
-                  borderColor: "#138a52",
-                  color: "#138a52",
-                },
-              }}
+              variant="contained"
+              color="primary"
               onClick={handleNavigateLogin}
+              sx={{
+                bgcolor: "#16ab65",
+                color: "#fff",
+                px: 4,
+                py: 1.5,
+                fontWeight: "600",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(22, 171, 101, 0.3)",
+                "&:hover": {
+                  bgcolor: "#138a52",
+                  boxShadow: "0 6px 16px rgba(22, 171, 101, 0.4)",
+                },
+                transition: "all 0.3s ease",
+              }}
             >
-              Đi tới trang đăng nhập
+              Go to Login
             </Button>
           </Box>
         </StyledContent>

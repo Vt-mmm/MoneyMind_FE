@@ -1,19 +1,27 @@
 import { LinearProgress, Box } from "@mui/material";
 import { useState, useEffect } from "react";
-
-// components
+import { styled } from "@mui/system";
 import { LoginForm } from "sections/auth";
-// redux
 import { useAppSelector } from "redux/config";
+
+const fadeInSlideUp = {
+  "0%": { opacity: 0, transform: "translateY(20px)" },
+  "100%": { opacity: 1, transform: "translateY(0)" },
+};
+
+const AnimatedBox = styled(Box)({
+  animation: `fadeInSlideUp 0.6s ease-out forwards`,
+  "@keyframes fadeInSlideUp": fadeInSlideUp,
+});
+
 export default function LoginPage() {
   const { isLoading } = useAppSelector((state) => state.auth);
-
   const [isContentVisible, setIsContentVisible] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsContentVisible(true);
-    }, 500);
+    }, 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -32,9 +40,11 @@ export default function LoginPage() {
         <LinearProgress sx={{ width: "100%", position: "absolute", top: 0 }} />
       )}
 
-      <Box sx={{ width: "100%", maxWidth: "500px" }}>
-        <LoginForm />
-      </Box>
+      {isContentVisible && (
+        <AnimatedBox sx={{ width: "100%", maxWidth: "500px" }}>
+          <LoginForm />
+        </AnimatedBox>
+      )}
     </Box>
   );
 }
