@@ -5,3 +5,4 @@ export * from './wallettype';
 export * from './datadefault';
 export * from './transaction';
 export * from './dashboard';
+export * from './report';

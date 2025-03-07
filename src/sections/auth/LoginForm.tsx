@@ -21,11 +21,25 @@ import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
 
 const fadeIn = { "0%": { opacity: 0 }, "100%": { opacity: 1 } };
-const slideUp = { "0%": { opacity: 0, transform: "translateY(15px)" }, "100%": { opacity: 1, transform: "translateY(0)" } };
+const slideUp = {
+  "0%": { opacity: 0, transform: "translateY(15px)" },
+  "100%": { opacity: 1, transform: "translateY(0)" },
+};
 
-const AnimatedLogo = styled(Box)({ animation: `fadeIn 0.5s ease-out forwards`, "@keyframes fadeIn": fadeIn });
-const AnimatedTypography = styled(Typography)({ animation: `slideUp 0.5s ease-out forwards 0.2s`, opacity: 0, "@keyframes slideUp": slideUp });
-const AnimatedStack = styled(Stack)({ animation: `slideUp 0.5s ease-out forwards 0.4s`, opacity: 0, "@keyframes slideUp": slideUp });
+const AnimatedLogo = styled(Box)({
+  animation: `fadeIn 0.5s ease-out forwards`,
+  "@keyframes fadeIn": fadeIn,
+});
+const AnimatedTypography = styled(Typography)({
+  animation: `slideUp 0.5s ease-out forwards 0.2s`,
+  opacity: 0,
+  "@keyframes slideUp": slideUp,
+});
+const AnimatedStack = styled(Stack)({
+  animation: `slideUp 0.5s ease-out forwards 0.4s`,
+  opacity: 0,
+  "@keyframes slideUp": slideUp,
+});
 
 interface LoginFormType {
   email: string;
@@ -70,7 +84,8 @@ function LoginForm() {
     dispatch(loginbygoogle(response.credential))
       .unwrap()
       .then((user) => {
-        if (!user || !user.roles) throw new Error("Unable to determine access rights.");
+        if (!user || !user.roles)
+          throw new Error("Unable to determine access rights.");
         if (user.roles.includes("Admin")) navigate("/admin/dashboard");
         else if (user.roles.includes("Manager")) navigate("/manager/report");
         else navigate("/user/home");
@@ -103,10 +118,18 @@ function LoginForm() {
         }}
       >
         <AnimatedLogo sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-          <img src={images.logo.logo_moneymind_no_bg} alt="MoneyMind Logo" style={{ width: "120px", height: "auto" }} />
+          <img
+            src={images.logo.logo_moneymind_no_bg}
+            alt="MoneyMind Logo"
+            style={{ width: "120px", height: "auto" }}
+          />
         </AnimatedLogo>
 
-        <AnimatedTypography variant="h5" fontWeight="bold" sx={{ fontSize: "24px", mb: 1 }}>
+        <AnimatedTypography
+          variant="h5"
+          fontWeight="bold"
+          sx={{ fontSize: "24px", mb: 1 }}
+        >
           Sign in to MoneyMind
         </AnimatedTypography>
 
@@ -140,7 +163,9 @@ function LoginForm() {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)}>
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
                         {showPassword ? <Visibility /> : <VisibilityOff />}
                       </IconButton>
                     </InputAdornment>
@@ -191,7 +216,8 @@ function LoginForm() {
                   "&:hover": { backgroundColor: "#f1f1f1" },
                 }}
                 onClick={() => {
-                  const googleButton = document.querySelector("div[role=button]");
+                  const googleButton =
+                    document.querySelector("div[role=button]");
                   if (googleButton) (googleButton as HTMLElement).click();
                 }}
               >

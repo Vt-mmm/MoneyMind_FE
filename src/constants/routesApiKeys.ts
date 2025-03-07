@@ -13,6 +13,7 @@ export const ROUTES_API_AUTH = {
 export const ROUTES_API_DASHBOARD = {
   TRANSACTIONS: `${ROOTS_DASHBOARDS}/transactions`,
   USERS: `${ROOTS_DASHBOARDS}/user`,
+  REPORTS: `${ROOTS_DASHBOARDS}/reports`,
 };
 export const ROUTES_API_USERS = {
   GET_ALL_USERS: ({
