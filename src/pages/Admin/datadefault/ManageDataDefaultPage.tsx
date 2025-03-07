@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "redux/config";
 import {
-  Card, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText,
+  Card,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  DialogContentText,
   CardContent,
   CardHeader,
   Typography,
@@ -20,9 +25,16 @@ import {
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import { getDataDefault, updateDataDefault } from "redux/dataDefault/dataDefaultSlice";
+import {
+  getDataDefault,
+  updateDataDefault,
+} from "redux/dataDefault/dataDefaultSlice";
 import { getAllWalletTypes } from "redux/wallettype/manageWalletTypeSlice";
-import { WalletCategory, GoalItem, MonthlyGoal } from "../../../common/models/datadefault";
+import {
+  WalletCategory,
+  GoalItem,
+  MonthlyGoal,
+} from "../../../common/models/datadefault";
 import { listImages } from "../../../firebase/firebasesystem";
 
 export interface FormDataDefault {
@@ -55,7 +67,7 @@ const ManageDataDefaultPage = () => {
   const fetchIcons = async () => {
     try {
       const urls = await listImages("Icons");
-      
+
       setIconUrlList(urls);
     } catch (err) {
       console.error("Error fetching icons:", err);
@@ -89,71 +101,65 @@ const ManageDataDefaultPage = () => {
   }, [dataDefault]);
 
   // Handler chung cho TextField (Input)
-  const handleInputChange = (
-    section: string,
-    field: string,
-    index?: number
-  ) => (event: React.ChangeEvent<HTMLInputElement | { value: unknown }>) => {
-    if (section === "walletCategories" && typeof index === "number") {
-      const updatedCategories = [...form.walletCategories];
-      updatedCategories[index] = {
-        ...updatedCategories[index],
-        [field]: event.target.value,
-      };
-      setForm((prev) => ({ ...prev, walletCategories: updatedCategories }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [section]: {
-          ...prev[section as keyof typeof prev],
+  const handleInputChange =
+    (section: string, field: string, index?: number) =>
+    (event: React.ChangeEvent<HTMLInputElement | { value: unknown }>) => {
+      if (section === "walletCategories" && typeof index === "number") {
+        const updatedCategories = [...form.walletCategories];
+        updatedCategories[index] = {
+          ...updatedCategories[index],
           [field]: event.target.value,
-        },
-      }));
-    }
-  };
+        };
+        setForm((prev) => ({ ...prev, walletCategories: updatedCategories }));
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          [section]: {
+            ...prev[section as keyof typeof prev],
+            [field]: event.target.value,
+          },
+        }));
+      }
+    };
 
   // Handler riêng cho Select
-  const handleSelectChange = (
-    section: string,
-    field: string,
-    index: number
-  ) => (event: SelectChangeEvent<string>) => {
-    if (section === "walletCategories") {
-      const updatedCategories = [...form.walletCategories];
-      updatedCategories[index] = {
-        ...updatedCategories[index],
-        [field]: event.target.value,
-      };
-      setForm((prev) => ({ ...prev, walletCategories: updatedCategories }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [section]: {
-          ...prev[section as keyof typeof prev],
+  const handleSelectChange =
+    (section: string, field: string, index: number) =>
+    (event: SelectChangeEvent<string>) => {
+      if (section === "walletCategories") {
+        const updatedCategories = [...form.walletCategories];
+        updatedCategories[index] = {
+          ...updatedCategories[index],
           [field]: event.target.value,
-        },
-      }));
-    }
-  };
+        };
+        setForm((prev) => ({ ...prev, walletCategories: updatedCategories }));
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          [section]: {
+            ...prev[section as keyof typeof prev],
+            [field]: event.target.value,
+          },
+        }));
+      }
+    };
 
   // Handler cho sự thay đổi của activities
-  const handleActivityChange = (
-    catIndex: number,
-    activityIndex: number,
-    field: string
-  ) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedCategories = [...form.walletCategories];
-    const updatedActivities = [...updatedCategories[catIndex].activities];
-    updatedActivities[activityIndex] = {
-      ...updatedActivities[activityIndex],
-      [field]: event.target.value,
+  const handleActivityChange =
+    (catIndex: number, activityIndex: number, field: string) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const updatedCategories = [...form.walletCategories];
+      const updatedActivities = [...updatedCategories[catIndex].activities];
+      updatedActivities[activityIndex] = {
+        ...updatedActivities[activityIndex],
+        [field]: event.target.value,
+      };
+      updatedCategories[catIndex] = {
+        ...updatedCategories[catIndex],
+        activities: updatedActivities,
+      };
+      setForm((prev) => ({ ...prev, walletCategories: updatedCategories }));
     };
-    updatedCategories[catIndex] = {
-      ...updatedCategories[catIndex],
-      activities: updatedActivities,
-    };
-    setForm((prev) => ({ ...prev, walletCategories: updatedCategories }));
-  };  
 
   // Thêm một wallet category mới
   const addWalletCategory = () => {
@@ -188,7 +194,7 @@ const ManageDataDefaultPage = () => {
     };
     setForm((prev) => ({ ...prev, walletCategories: updatedCategories }));
   };
-  
+
   // Xóa activity khỏi wallet category
   const removeActivity = (catIndex: number, activityIndex: number) => {
     const updatedCategories = [...form.walletCategories];
@@ -210,7 +216,7 @@ const ManageDataDefaultPage = () => {
     setOpenDialog(false);
   };
 
-    // Xác nhận cập nhật: dispatch action update và đóng dialog
+  // Xác nhận cập nhật: dispatch action update và đóng dialog
   const handleConfirmUpdate = () => {
     dispatch(updateDataDefault({ data: form }));
     setOpenDialog(false);
@@ -283,12 +289,18 @@ const ManageDataDefaultPage = () => {
                         />
                         <Box display="flex" alignItems="center">
                           <FormControl fullWidth margin="normal">
-                            <InputLabel id={`iconPath-label-${index}`}>Icon Path</InputLabel>
+                            <InputLabel id={`iconPath-label-${index}`}>
+                              Icon Path
+                            </InputLabel>
                             <Select
                               labelId={`iconPath-label-${index}`}
                               value={category.iconPath}
                               label="Icon Path"
-                              onChange={handleSelectChange("walletCategories", "iconPath", index)}
+                              onChange={handleSelectChange(
+                                "walletCategories",
+                                "iconPath",
+                                index
+                              )}
                             >
                               {iconUrlList.map((url) => (
                                 <MenuItem key={url} value={url}>
@@ -300,7 +312,9 @@ const ManageDataDefaultPage = () => {
                           <Button
                             variant="outlined"
                             color="primary"
-                            onClick={() => window.open(category.iconPath, "_blank")}
+                            onClick={() =>
+                              window.open(category.iconPath, "_blank")
+                            }
                             style={{ marginLeft: 8, marginTop: 16 }}
                           >
                             Preview
@@ -435,7 +449,10 @@ const ManageDataDefaultPage = () => {
                   label="Min Target Percentage"
                   type="number"
                   value={form.goalItem.minTargetPercentage}
-                  onChange={handleInputChange("goalItem", "minTargetPercentage")}
+                  onChange={handleInputChange(
+                    "goalItem",
+                    "minTargetPercentage"
+                  )}
                   fullWidth
                   margin="normal"
                 />
@@ -443,7 +460,10 @@ const ManageDataDefaultPage = () => {
                   label="Max Target Percentage"
                   type="number"
                   value={form.goalItem.maxTargetPercentage}
-                  onChange={handleInputChange("goalItem", "maxTargetPercentage")}
+                  onChange={handleInputChange(
+                    "goalItem",
+                    "maxTargetPercentage"
+                  )}
                   fullWidth
                   margin="normal"
                 />
@@ -469,7 +489,11 @@ const ManageDataDefaultPage = () => {
           {/* Nút Update */}
           <Grid item xs={12}>
             <Box display="flex" justifyContent="center" mt={4}>
-              <Button variant="contained" color="primary" onClick={handleOpenDialog}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleOpenDialog}
+              >
                 Update Data Default
               </Button>
             </Box>
@@ -477,7 +501,12 @@ const ManageDataDefaultPage = () => {
         </Grid>
       </main>
       {/* Dialog Preview JSON */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Preview Update JSON</DialogTitle>
         <DialogContent>
           <DialogContentText>

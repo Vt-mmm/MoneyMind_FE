@@ -7,6 +7,7 @@ import dashboardReducer from "./dashboard/dashboardSlice"
 import tagReducer from "./tag/manageTagSlice"
 import walletTypeReducer from "./wallettype/manageWalletTypeSlice";
 import transactionReducer from "./transaction/transactionSlice";
+import reportReducer from "./report/reportSlice";
 export const moneymind = configureStore({
   reducer: {
     auth: authReducer,
@@ -16,6 +17,7 @@ export const moneymind = configureStore({
     wallet: walletTypeReducer,
     dashboard: dashboardReducer,
     transaction: transactionReducer,
+    report: reportReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
