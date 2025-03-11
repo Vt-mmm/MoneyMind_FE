@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useAppSelector } from "redux/config";
 import { fetchUsers } from "redux/dashboard/dashboardSlice";
 import { Transaction } from "common/models";
-import { fetchTransactions } from "redux/transaction/transactionSlice";
+import { fetchTransactions, fetchTransactionPage, setPageSize } from "redux/transaction/transactionSlice";
 import {
   Container,
   Typography,
@@ -23,7 +23,8 @@ import {
   Button,
 } from "@mui/material";
 import {
-  PieChart,
+  LineChart,
+  Line,
   Pie,
   Cell,
   Tooltip,
@@ -47,7 +48,7 @@ const MoneyMindDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const theme = useTheme();
-  const [chartDataPie, setChartDataPie] = useState<
+  const [chartDataLine, setChartDataLine] = useState<
     { name: string; transactions: number }[]
   >([]);
   const [chartDataBar, setChartDataBar] = useState<
@@ -60,18 +61,46 @@ const MoneyMindDashboardPage: React.FC = () => {
     startDate: "",
     endDate: "",
   });
+  const [isDataLoading, setIsDataLoading] = useState(false);
 
   const { users } = useAppSelector((state) => state.dashboard);
-  const { transactions } = useAppSelector((state) => state.transaction);
+  const { transactions, isLoading, pagination } = useAppSelector((state) => state.transaction);
 
+  // Separate function to fetch transactions with better error handling
+  const loadTransactions = async () => {
+    setIsDataLoading(true);
+    try {
+      // First set a larger page size to get more data at once
+      await dispatch(setPageSize(50));
+      
+      // Use the getAllPages option to fetch all transactions at once
+      await dispatch(fetchTransactions({ 
+        navigate, 
+        optionParams: {
+          pageSize: 50, // Đặt pageSize cao hơn để lấy nhiều dữ liệu hơn mỗi trang
+          getAllPages: true // Tùy chọn để lấy tất cả các trang
+        }
+      }));
+      
+    } catch (error) {
+    } finally {
+      setIsDataLoading(false);
+    }
+  };
+
+  // Initial data loading
   useEffect(() => {
-    dispatch(fetchTransactions({ navigate }));
+    // Fetch users
     dispatch(fetchUsers({ navigate }));
+    
+    // Fetch transactions with improved approach
+    loadTransactions();
   }, [dispatch, navigate]);
 
+  // Process chart data when transactions change
   useEffect(() => {
-    if (transactions && Array.isArray(transactions)) {
-      processPieChartData(transactions, filterType);
+    if (transactions && Array.isArray(transactions) && transactions.length > 0) {
+      processLineChartData(transactions, filterType);
       processBarChartData(transactions, filterType, dateFilter);
     }
   }, [transactions, filterType, dateFilter]);
@@ -79,14 +108,21 @@ const MoneyMindDashboardPage: React.FC = () => {
   const hasTransactions =
     Array.isArray(transactions) && transactions.length > 0;
   const hasUsers = Array.isArray(users) && users.length > 0;
-  const isLoading = transactions === null || users === null;
+  const showLoading = isLoading || isDataLoading;
 
-  const processPieChartData = (
+  // Changed from processPieChartData to processLineChartData
+  const processLineChartData = (
     transactions: Transaction[],
     type: "day" | "month" | "year"
   ) => {
     let groupedData: Record<string, number> = {};
-    transactions.forEach((transaction) => {
+    
+    // Sort transactions by date
+    const sortedTransactions = [...transactions].sort((a, b) => {
+      return new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime();
+    });
+    
+    sortedTransactions.forEach((transaction) => {
       if (!transaction.transactionDate) return;
       const date = new Date(transaction.transactionDate);
       if (isNaN(date.getTime())) return;
@@ -104,11 +140,22 @@ const MoneyMindDashboardPage: React.FC = () => {
       groupedData[key] = (groupedData[key] || 0) + 1;
     });
 
-    const formattedData = Object.keys(groupedData).map((key) => ({
-      name: key,
-      transactions: groupedData[key],
-    }));
-    setChartDataPie(formattedData);
+    // Convert to array and sort by date
+    const formattedData = Object.keys(groupedData)
+      .map((key) => ({
+        name: key,
+        transactions: groupedData[key],
+      }))
+      .sort((a, b) => {
+        // For day format
+        if (type === "day") {
+          return new Date(a.name).getTime() - new Date(b.name).getTime();
+        }
+        // For month/year format
+        return a.name.localeCompare(b.name);
+      });
+      
+    setChartDataLine(formattedData);
   };
 
   const processBarChartData = (
@@ -146,14 +193,25 @@ const MoneyMindDashboardPage: React.FC = () => {
       groupedData[key] = (groupedData[key] || 0) + transaction.amount;
     });
 
-    const formattedData = Object.keys(groupedData).map((key) => ({
-      name: key,
-      totalValue: groupedData[key],
-    }));
+    const formattedData = Object.keys(groupedData)
+      .map((key) => ({
+        name: key,
+        totalValue: groupedData[key],
+      }))
+      .sort((a, b) => {
+        // For day format
+        if (type === "day") {
+          return new Date(a.name).getTime() - new Date(b.name).getTime();
+        }
+        // For month/year format
+        return a.name.localeCompare(b.name);
+      });
+      
     setChartDataBar(formattedData);
   };
 
   const handleFilterApply = () => {
+    processLineChartData(transactions || [], filterType);
     processBarChartData(transactions || [], filterType, dateFilter);
   };
 
@@ -167,6 +225,11 @@ const MoneyMindDashboardPage: React.FC = () => {
       )
     : 0;
 
+  // Function to reload data if needed
+  const handleReloadData = () => {
+    loadTransactions();
+  };
+
   return (
     <Container
       maxWidth="xl"
@@ -176,7 +239,7 @@ const MoneyMindDashboardPage: React.FC = () => {
           "linear-gradient(135deg, rgb(240, 253, 244), rgb(240, 253, 244))",
       }}
     >
-      <Box sx={{ mb: 5 }}>
+      <Box sx={{ mb: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography
           variant="h4"
           sx={{
@@ -189,6 +252,16 @@ const MoneyMindDashboardPage: React.FC = () => {
         >
           Spending Management Overview
         </Typography>
+        
+        <Button 
+          variant="outlined" 
+          color="primary" 
+          onClick={handleReloadData}
+          disabled={showLoading}
+          sx={{ borderColor: '#1cc88a', color: '#1cc88a' }}
+        >
+          Refresh Data
+        </Button>
       </Box>
 
       {/* Thống kê tổng quan */}
@@ -251,6 +324,11 @@ const MoneyMindDashboardPage: React.FC = () => {
             </Typography>
             <Typography variant="h5" sx={{ color: "#1cc88a", fontWeight: 600 }}>
               {hasTransactions ? transactions.length : 0}
+              {pagination && pagination.totalItems > transactions.length && (
+                <Typography variant="caption" sx={{ ml: 1, color: '#666' }}>
+                  (of {pagination.totalItems})
+                </Typography>
+              )}
             </Typography>
           </Paper>
         </Grid>
@@ -286,7 +364,7 @@ const MoneyMindDashboardPage: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Biểu đồ và chi tiết */}
+      {/* Charts section */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Paper
@@ -335,36 +413,54 @@ const MoneyMindDashboardPage: React.FC = () => {
               </Box>
             </Box>
             <Box sx={{ width: "100%", height: 350 }}>
-              <ResponsiveContainer>
-                <PieChart>
-                  <Pie
-                    data={chartDataPie}
-                    dataKey="transactions"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius="80%"
-                    label={({ name, percent }) =>
-                      `${name} (${(percent * 100).toFixed(0)}%)`
-                    }
-                    labelLine={true}
+              {chartDataLine.length > 0 ? (
+                <ResponsiveContainer>
+                  <LineChart
+                    data={chartDataLine}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                   >
-                    {chartDataPie.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number) => `${value} transactions`}
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fill: "#666", fontSize: 12 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      tick={{ fill: "#666", fontSize: 12 }}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [`${value} transactions`, "Transactions"]}
+                      contentStyle={{
+                        backgroundColor: "rgba(255, 255, 255, 0.95)",
+                        borderRadius: "8px",
+                        border: "1px solid #4e73df",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                      }}
+                      labelStyle={{ color: "#4e73df" }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="transactions"
+                      stroke="#4e73df"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "#4e73df" }}
+                      activeDot={{ r: 6, fill: "#4e73df" }}
+                      animationDuration={1000}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  {showLoading ? (
+                    <CircularProgress size={30} sx={{ color: "#4e73df" }} />
+                  ) : (
+                    <Typography color="textSecondary">No transaction data available</Typography>
+                  )}
+                </Box>
+              )}
             </Box>
           </Paper>
         </Grid>
@@ -400,7 +496,7 @@ const MoneyMindDashboardPage: React.FC = () => {
               <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}></Box>
             </Box>
 
-            {/* Bộ lọc ngày tháng */}
+            {/* Date filters */}
             <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
               <input
                 type="date"
@@ -439,61 +535,72 @@ const MoneyMindDashboardPage: React.FC = () => {
             </Box>
 
             <Box sx={{ width: "100%", height: 350 }}>
-              <ResponsiveContainer>
-                <BarChart
-                  data={chartDataBar}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: "#666", fontSize: 12 }}
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis
-                    tick={{ fill: "#666", fontSize: 12 }}
-                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => [
-                      `${value.toLocaleString()} VND`,
-                      "Total Value",
-                    ]}
-                    contentStyle={{
-                      backgroundColor: "rgba(255, 255, 255, 0.95)",
-                      borderRadius: "8px",
-                      border: "1px solid #36b9cc",
-                      boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-                    }}
-                    labelStyle={{ color: "#36b9cc" }}
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="totalValue"
-                    fill="#36b9cc"
-                    radius={[4, 4, 0, 0]}
-                    barSize={30}
-                    animationDuration={1000}
+              {chartDataBar.length > 0 ? (
+                <ResponsiveContainer>
+                  <BarChart
+                    data={chartDataBar}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                   >
-                    {chartDataBar.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          entry.totalValue > 0 ? "#36b9cc" : "#e74a3b"
-                        }
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: "#666", fontSize: 12 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis
+                      tick={{ fill: "#666", fontSize: 12 }}
+                      tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [
+                        `${value.toLocaleString()} VND`,
+                        "Total Value",
+                      ]}
+                      contentStyle={{
+                        backgroundColor: "rgba(255, 255, 255, 0.95)",
+                        borderRadius: "8px",
+                        border: "1px solid #36b9cc",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                      }}
+                      labelStyle={{ color: "#36b9cc" }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="totalValue"
+                      fill="#36b9cc"
+                      radius={[4, 4, 0, 0]}
+                      barSize={30}
+                      animationDuration={1000}
+                    >
+                      {chartDataBar.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={
+                            entry.totalValue > 0 ? "#36b9cc" : "#e74a3b"
+                          }
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  {showLoading ? (
+                    <CircularProgress size={30} sx={{ color: "#36b9cc" }} />
+                  ) : (
+                    <Typography color="textSecondary">No transaction data available</Typography>
+                  )}
+                </Box>
+              )}
             </Box>
           </Paper>
         </Grid>
       </Grid>
 
-      {isLoading && (
+      {/* Loading overlay */}
+      {showLoading && (
         <Box
           sx={{
             position: "fixed",

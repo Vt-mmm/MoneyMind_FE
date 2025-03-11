@@ -33,6 +33,7 @@ import {
   Description as DescriptionIcon,
   CalendarToday as CalendarIcon,
   Person as PersonIcon,
+  FormatListNumbered as NumberIcon,
 } from "@mui/icons-material";
 
 // Định nghĩa màu sắc
@@ -132,6 +133,12 @@ export default function TransactionManagementPage() {
                     <TableRow sx={{ bgcolor: LIGHT_GREY_BG }}>
                       <StyledTableCell sx={{ fontWeight: "bold", color: NEUTRAL_GREY }}>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <NumberIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
+                          STT
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell sx={{ fontWeight: "bold", color: NEUTRAL_GREY }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
                           <DescriptionIcon fontSize="small" sx={{ mr: 1, color: NEUTRAL_GREY }} />
                           Transaction ID
                         </Box>
@@ -165,7 +172,7 @@ export default function TransactionManagementPage() {
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
-                        <StyledTableCell colSpan={5} align="center">
+                        <StyledTableCell colSpan={6} align="center">
                           <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
                             <CircularProgress sx={{ color: PRIMARY_GREEN }} size={40} />
                             <Typography variant="body2" color={NEUTRAL_GREY} ml={2}>
@@ -176,7 +183,7 @@ export default function TransactionManagementPage() {
                       </TableRow>
                     ) : !hasTransactions ? (
                       <TableRow>
-                        <StyledTableCell colSpan={5} align="center">
+                        <StyledTableCell colSpan={6} align="center">
                           <Box
                             sx={{
                               p: 4,
@@ -202,6 +209,11 @@ export default function TransactionManagementPage() {
                             key={transaction.id || index}
                             sx={{ "&:hover": { bgcolor: LIGHT_GREY_BG }, transition: "background-color 0.2s" }}
                           >
+                            <StyledTableCell>
+                              <Typography variant="body2" sx={{ fontWeight: "medium", color: NEUTRAL_GREY }}>
+                                {page * rowsPerPage + index + 1}
+                              </Typography>
+                            </StyledTableCell>
                             <StyledTableCell>
                               <Typography variant="body2" sx={{ fontWeight: "medium", color: NEUTRAL_GREY }}>
                                 {transaction.id}
