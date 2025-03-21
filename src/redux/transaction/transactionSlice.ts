@@ -8,6 +8,7 @@ interface TransactionState {
   transactions: Transaction[];
   isLoading: boolean;
   isError: boolean;
+  totalRecord?: number;
   pagination: {
     currentPage: number;
     totalPages: number;
@@ -20,6 +21,7 @@ const initialState: TransactionState = {
   transactions: [],
   isLoading: false,
   isError: false,
+  totalRecord: 0,
   pagination: {
     currentPage: 1,
     totalPages: 1,
