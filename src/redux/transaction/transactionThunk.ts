@@ -10,6 +10,7 @@ export interface Transaction {
   description: string;
   transactionDate: string;
   recipientName: string;
+  tags?: { id: string; name: string; color: string; }[];
 }
 
 export const getDashboardTransactionThunk = async (
@@ -73,6 +74,7 @@ export const getDashboardTransactionThunk = async (
             description: item.description,
             transactionDate: item.transactionDate,
             recipientName: item.recipientName,
+            tags: item.tags || [],
           }));
 
           allTransactions = [...allTransactions, ...transactions];
@@ -120,6 +122,7 @@ export const getDashboardTransactionThunk = async (
         description: item.description,
         transactionDate: item.transactionDate,
         recipientName: item.recipientName,
+        tags: item.tags || [],
       }));
 
       return transactions;

@@ -9,8 +9,6 @@ import {
   Container,
   Typography,
   Grid,
-  Card,
-  CardContent,
   CircularProgress,
   Box,
   Avatar,
@@ -21,13 +19,18 @@ import {
   InputLabel,
   Paper,
   Button,
+  Stack,
+  alpha,
+  styled,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   LineChart,
   Line,
   Pie,
   Cell,
-  Tooltip,
+  Tooltip as ChartTooltip,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -40,9 +43,67 @@ import {
   PeopleAlt as PeopleIcon,
   Payments as PaymentsIcon,
   AccountBalance as AccountBalanceIcon,
+  Refresh as RefreshIcon,
+  TrendingUp as TrendingUpIcon,
+  CalendarToday as CalendarIcon,
+  FilterList as FilterIcon,
 } from "@mui/icons-material";
 
-const COLORS = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b"];
+// Constants
+const PRIMARY_COLOR = '#1cc88a';
+const SECONDARY_COLOR = '#4e73df';
+const TERTIARY_COLOR = '#36b9cc';
+const DANGER_COLOR = '#e74a3b';
+
+// Styled Components
+const DashboardCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  borderRadius: 16,
+  background: '#fff',
+  transition: 'all 0.3s ease',
+  border: '1px solid',
+  borderColor: alpha(theme.palette.divider, 0.1),
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.1)}`,
+  },
+}));
+
+const ChartContainer = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  borderRadius: 16,
+  background: '#fff',
+  height: '100%',
+  border: '1px solid',
+  borderColor: alpha(theme.palette.divider, 0.1),
+  '&:hover': {
+    boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.08)}`,
+  },
+}));
+
+const StyledDateInput = styled('input')(({ theme }) => ({
+  padding: '10px 14px',
+  borderRadius: 8,
+  border: `1px solid ${alpha(PRIMARY_COLOR, 0.2)}`,
+  fontSize: '0.875rem',
+  transition: 'all 0.2s',
+  '&:focus': {
+    outline: 'none',
+    borderColor: PRIMARY_COLOR,
+    boxShadow: `0 0 0 2px ${alpha(PRIMARY_COLOR, 0.1)}`,
+  },
+}));
+
+const ActionButton = styled(Button)(({ theme }) => ({
+  borderRadius: 8,
+  textTransform: 'none',
+  padding: '8px 16px',
+  fontWeight: 600,
+  boxShadow: 'none',
+  '&:hover': {
+    boxShadow: `0 4px 12px ${alpha(PRIMARY_COLOR, 0.2)}`,
+  },
+}));
 
 const MoneyMindDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -231,391 +292,404 @@ const MoneyMindDashboardPage: React.FC = () => {
   };
 
   return (
-    <Container
-      maxWidth="xl"
-      sx={{
-        py: 5,
-        background:
-          "linear-gradient(135deg, rgb(240, 253, 244), rgb(240, 253, 244))",
-      }}
-    >
-      <Box sx={{ mb: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography
-          variant="h4"
+    <Container maxWidth="xl">
+      <Box sx={{ py: 4 }}>
+        {/* Header Section */}
+        <Stack 
+          direction="row" 
+          alignItems="center" 
+          justifyContent="space-between" 
+          mb={4}
           sx={{
-            fontWeight: 700,
-            color: "#1cc88a",
-            background: "#1cc88a",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            backgroundColor: '#fff',
+            borderRadius: 3,
+            p: 3,
+            boxShadow: `0 2px 12px ${alpha('#000', 0.04)}`,
           }}
         >
-          Spending Management Overview
-        </Typography>
-        
-        <Button 
-          variant="outlined" 
-          color="primary" 
-          onClick={handleReloadData}
-          disabled={showLoading}
-          sx={{ borderColor: '#1cc88a', color: '#1cc88a' }}
-        >
-          Refresh Data
-        </Button>
-      </Box>
-
-      {/* Thống kê tổng quan */}
-      <Grid container spacing={3} sx={{ mb: 5 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            elevation={6}
-            sx={{
-              p: 3,
-              background: "linear-gradient(135deg, #4e73df10, #ffffff)",
-              borderRadius: 2,
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-5px)",
-                boxShadow: "0 7px 14px rgba(78, 115, 223, 0.3)",
-              },
-            }}
-            onClick={handleUsersCardClick}
-          >
-            <Avatar sx={{ bgcolor: "#4e73df", mb: 2, width: 48, height: 48 }}>
-              <PeopleIcon />
-            </Avatar>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#4e73df", fontWeight: 500 }}
-              gutterBottom
-            >
-              Users
-            </Typography>
-            <Typography variant="h5" sx={{ color: "#4e73df", fontWeight: 600 }}>
-              {hasUsers ? users.length : 0}
-            </Typography>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            elevation={6}
-            sx={{
-              p: 3,
-              background: "linear-gradient(135deg, #1cc88a10, #ffffff)",
-              borderRadius: 2,
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-5px)",
-                boxShadow: "0 7px 14px rgba(28, 200, 138, 0.3)",
-              },
-            }}
-            onClick={handleTransactionsCardClick}
-          >
-            <Avatar sx={{ bgcolor: "#1cc88a", mb: 2, width: 48, height: 48 }}>
-              <PaymentsIcon />
-            </Avatar>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#1cc88a", fontWeight: 500 }}
-              gutterBottom
-            >
-              Total Transactions
-            </Typography>
-            <Typography variant="h5" sx={{ color: "#1cc88a", fontWeight: 600 }}>
-              {hasTransactions ? transactions.length : 0}
-              {pagination && pagination.totalItems > transactions.length && (
-                <Typography variant="caption" sx={{ ml: 1, color: '#666' }}>
-                  (of {pagination.totalItems})
-                </Typography>
-              )}
-            </Typography>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            elevation={6}
-            sx={{
-              p: 3,
-              background: "linear-gradient(135deg, #36b9cc10, #ffffff)",
-              borderRadius: 2,
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-5px)",
-                boxShadow: "0 7px 14px rgba(54, 185, 204, 0.3)",
-              },
-            }}
-          >
-            <Avatar sx={{ bgcolor: "#36b9cc", mb: 2, width: 48, height: 48 }}>
-              <AccountBalanceIcon />
-            </Avatar>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#36b9cc", fontWeight: 500 }}
-              gutterBottom
-            >
-              Total Value
-            </Typography>
-            <Typography variant="h5" sx={{ color: "#36b9cc", fontWeight: 600 }}>
-              {totalTransactionValue.toLocaleString()} VND
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-
-      {/* Charts section */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={4}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              background: "#ffffff",
-              height: "100%",
-            }}
-          >
-            <Box
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Avatar
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
+                width: 48,
+                height: 48,
+                bgcolor: alpha(PRIMARY_COLOR, 0.1),
+                color: PRIMARY_COLOR,
               }}
             >
-              <Typography
-                variant="h6"
-                sx={{ color: "#2d3748", fontWeight: 600 }}
-              >
-                Transaction Distribution
+              <TrendingUpIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h5" fontWeight={700} color="primary">
+                Spending Management Overview
               </Typography>
-              <Box sx={{ mt: 2, display: "flex", gap: 2, alignItems: "center" }}>
+              <Typography variant="body2" color="text.secondary">
+                Monitor your financial activities and trends
+              </Typography>
+            </Box>
+          </Stack>
+
+          <ActionButton
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={handleReloadData}
+            disabled={showLoading}
+            sx={{
+              borderColor: PRIMARY_COLOR,
+              color: PRIMARY_COLOR,
+              '&:hover': {
+                borderColor: PRIMARY_COLOR,
+                bgcolor: alpha(PRIMARY_COLOR, 0.05),
+              },
+            }}
+          >
+            Refresh Data
+          </ActionButton>
+        </Stack>
+
+        {/* Statistics Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={4}>
+            <DashboardCard
+              onClick={handleUsersCardClick}
+              sx={{ 
+                cursor: 'pointer',
+                borderLeft: `4px solid ${SECONDARY_COLOR}`,
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar 
+                  sx={{ 
+                    width: 48, 
+                    height: 48, 
+                    bgcolor: alpha(SECONDARY_COLOR, 0.1),
+                    color: SECONDARY_COLOR,
+                  }}
+                >
+                  <PeopleIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Total Users
+                  </Typography>
+                  <Typography variant="h4" sx={{ color: SECONDARY_COLOR, fontWeight: 600 }}>
+                    {hasUsers ? users.length.toLocaleString() : 0}
+                  </Typography>
+                </Box>
+              </Stack>
+            </DashboardCard>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <DashboardCard
+              onClick={handleTransactionsCardClick}
+              sx={{ 
+                cursor: 'pointer',
+                borderLeft: `4px solid ${PRIMARY_COLOR}`,
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar 
+                  sx={{ 
+                    width: 48, 
+                    height: 48, 
+                    bgcolor: alpha(PRIMARY_COLOR, 0.1),
+                    color: PRIMARY_COLOR,
+                  }}
+                >
+                  <PaymentsIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Total Transactions
+                  </Typography>
+                  <Stack direction="row" alignItems="baseline" spacing={1}>
+                    <Typography variant="h4" sx={{ color: PRIMARY_COLOR, fontWeight: 600 }}>
+                      {hasTransactions ? transactions.length.toLocaleString() : 0}
+                    </Typography>
+                    {pagination && pagination.totalItems > transactions.length && (
+                      <Typography variant="caption" color="text.secondary">
+                        of {pagination.totalItems.toLocaleString()}
+                      </Typography>
+                    )}
+                  </Stack>
+                </Box>
+              </Stack>
+            </DashboardCard>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <DashboardCard
+              sx={{ borderLeft: `4px solid ${TERTIARY_COLOR}` }}
+            >
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar 
+                  sx={{ 
+                    width: 48, 
+                    height: 48, 
+                    bgcolor: alpha(TERTIARY_COLOR, 0.1),
+                    color: TERTIARY_COLOR,
+                  }}
+                >
+                  <AccountBalanceIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Total Value
+                  </Typography>
+                  <Typography variant="h4" sx={{ color: TERTIARY_COLOR, fontWeight: 600 }}>
+                    {totalTransactionValue.toLocaleString()} ₫
+                  </Typography>
+                </Box>
+              </Stack>
+            </DashboardCard>
+          </Grid>
+        </Grid>
+
+        {/* Charts Section */}
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <ChartContainer>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+                <Box>
+                  <Typography variant="h6" fontWeight={600} gutterBottom>
+                    Transaction Distribution
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Number of transactions over time
+                  </Typography>
+                </Box>
+                
                 <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel sx={{ color: "#36b9cc" }}>Filter By</InputLabel>
+                  <InputLabel>Time Range</InputLabel>
                   <Select
                     value={filterType}
-                    onChange={(e) =>
-                      setFilterType(e.target.value as "day" | "month" | "year")
-                    }
+                    onChange={(e) => setFilterType(e.target.value as "day" | "month" | "year")}
                     sx={{
-                      color: "#36b9cc",
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#36b9cc",
+                      borderRadius: 2,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: alpha(PRIMARY_COLOR, 0.2),
                       },
                     }}
                   >
-                    <MenuItem value="day">Day</MenuItem>
-                    <MenuItem value="month">Month</MenuItem>
-                    <MenuItem value="year">Year</MenuItem>
+                    <MenuItem value="day">Daily</MenuItem>
+                    <MenuItem value="month">Monthly</MenuItem>
+                    <MenuItem value="year">Yearly</MenuItem>
                   </Select>
                 </FormControl>
-              </Box>
-            </Box>
-            <Box sx={{ width: "100%", height: 350 }}>
-              {chartDataLine.length > 0 ? (
-                <ResponsiveContainer>
-                  <LineChart
-                    data={chartDataLine}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis 
-                      dataKey="name" 
-                      tick={{ fill: "#666", fontSize: 12 }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
-                    />
-                    <YAxis 
-                      tick={{ fill: "#666", fontSize: 12 }}
-                    />
-                    <Tooltip
-                      formatter={(value: number) => [`${value} transactions`, "Transactions"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(255, 255, 255, 0.95)",
-                        borderRadius: "8px",
-                        border: "1px solid #4e73df",
-                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-                      }}
-                      labelStyle={{ color: "#4e73df" }}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="transactions"
-                      stroke="#4e73df"
-                      strokeWidth={2}
-                      dot={{ r: 4, fill: "#4e73df" }}
-                      activeDot={{ r: 6, fill: "#4e73df" }}
-                      animationDuration={1000}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                  {showLoading ? (
-                    <CircularProgress size={30} sx={{ color: "#4e73df" }} />
-                  ) : (
-                    <Typography color="textSecondary">No transaction data available</Typography>
-                  )}
-                </Box>
-              )}
-            </Box>
-          </Paper>
-        </Grid>
+              </Stack>
 
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={4}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              background: "#ffffff",
-              height: "100%",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                boxShadow: "0 8px 24px rgba(54, 185, 204, 0.2)",
-              },
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{ color: "#2d3748", fontWeight: 600 }}
-              >
-                Total Transaction Value
-              </Typography>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}></Box>
-            </Box>
-
-            {/* Date filters */}
-            <Box sx={{ mb: 3, display: "flex", gap: 2 }}>
-              <input
-                type="date"
-                value={dateFilter.startDate}
-                onChange={(e) =>
-                  setDateFilter({ ...dateFilter, startDate: e.target.value })
-                }
-                style={{
-                  padding: "8px",
-                  borderRadius: "4px",
-                  border: "1px solid #36b9cc",
-                }}
-              />
-              <input
-                type="date"
-                value={dateFilter.endDate}
-                onChange={(e) =>
-                  setDateFilter({ ...dateFilter, endDate: e.target.value })
-                }
-                style={{
-                  padding: "8px",
-                  borderRadius: "4px",
-                  border: "1px solid #36b9cc",
-                }}
-              />
-              <Button
-                variant="contained"
-                onClick={handleFilterApply}
-                sx={{
-                  bgcolor: "#36b9cc",
-                  "&:hover": { bgcolor: "#2c9faf" },
-                }}
-              >
-                Apply
-              </Button>
-            </Box>
-
-            <Box sx={{ width: "100%", height: 350 }}>
-              {chartDataBar.length > 0 ? (
-                <ResponsiveContainer>
-                  <BarChart
-                    data={chartDataBar}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fill: "#666", fontSize: 12 }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
-                    />
-                    <YAxis
-                      tick={{ fill: "#666", fontSize: 12 }}
-                      tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                    />
-                    <Tooltip
-                      formatter={(value: number) => [
-                        `${value.toLocaleString()} VND`,
-                        "Total Value",
-                      ]}
-                      contentStyle={{
-                        backgroundColor: "rgba(255, 255, 255, 0.95)",
-                        borderRadius: "8px",
-                        border: "1px solid #36b9cc",
-                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-                      }}
-                      labelStyle={{ color: "#36b9cc" }}
-                    />
-                    <Legend />
-                    <Bar
-                      dataKey="totalValue"
-                      fill="#36b9cc"
-                      radius={[4, 4, 0, 0]}
-                      barSize={30}
-                      animationDuration={1000}
+              <Box sx={{ width: "100%", height: 350 }}>
+                {chartDataLine.length > 0 ? (
+                  <ResponsiveContainer>
+                    <LineChart
+                      data={chartDataLine}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                     >
-                      {chartDataBar.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={
-                            entry.totalValue > 0 ? "#36b9cc" : "#e74a3b"
-                          }
+                      <CartesianGrid strokeDasharray="3 3" stroke={alpha('#000', 0.06)} />
+                      <XAxis 
+                        dataKey="name" 
+                        tick={{ fill: "#666", fontSize: 12 }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                      />
+                      <YAxis 
+                        tick={{ fill: "#666", fontSize: 12 }}
+                      />
+                      <ChartTooltip
+                        formatter={(value: number) => [`${value} transactions`, "Transactions"]}
+                        contentStyle={{
+                          backgroundColor: "rgba(255, 255, 255, 0.95)",
+                          borderRadius: "8px",
+                          border: `1px solid ${PRIMARY_COLOR}`,
+                          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                        }}
+                        labelStyle={{ color: PRIMARY_COLOR }}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="transactions"
+                        stroke={PRIMARY_COLOR}
+                        strokeWidth={2}
+                        dot={{ r: 4, fill: PRIMARY_COLOR }}
+                        activeDot={{ r: 6, fill: PRIMARY_COLOR }}
+                        animationDuration={1000}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <Stack alignItems="center" justifyContent="center" height="100%">
+                    {showLoading ? (
+                      <CircularProgress size={30} sx={{ color: PRIMARY_COLOR }} />
+                    ) : (
+                      <Box textAlign="center">
+                        <Typography variant="body1" color="text.secondary" gutterBottom>
+                          No transaction data available
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Start making transactions to see the distribution
+                        </Typography>
+                      </Box>
+                    )}
+                  </Stack>
+                )}
+              </Box>
+            </ChartContainer>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <ChartContainer>
+              <Stack spacing={3}>
+                <Box>
+                  <Typography variant="h6" fontWeight={600} gutterBottom>
+                    Total Transaction Value
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Transaction values by time period
+                  </Typography>
+                </Box>
+
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Box flex={1}>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Start Date
+                    </Typography>
+                    <StyledDateInput
+                      type="date"
+                      value={dateFilter.startDate}
+                      onChange={(e) => setDateFilter({ ...dateFilter, startDate: e.target.value })}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      End Date
+                    </Typography>
+                    <StyledDateInput
+                      type="date"
+                      value={dateFilter.endDate}
+                      onChange={(e) => setDateFilter({ ...dateFilter, endDate: e.target.value })}
+                    />
+                  </Box>
+                  <Box>
+                    <ActionButton
+                      variant="contained"
+                      onClick={handleFilterApply}
+                      startIcon={<FilterIcon />}
+                      sx={{
+                        mt: 3,
+                        bgcolor: PRIMARY_COLOR,
+                        '&:hover': {
+                          bgcolor: alpha(PRIMARY_COLOR, 0.9),
+                        },
+                      }}
+                    >
+                      Apply Filter
+                    </ActionButton>
+                  </Box>
+                </Stack>
+
+                <Box sx={{ width: "100%", height: 350 }}>
+                  {chartDataBar.length > 0 ? (
+                    <ResponsiveContainer>
+                      <BarChart
+                        data={chartDataBar}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke={alpha('#000', 0.06)} />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fill: "#666", fontSize: 12 }}
+                          angle={-45}
+                          textAnchor="end"
+                          height={60}
                         />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                  {showLoading ? (
-                    <CircularProgress size={30} sx={{ color: "#36b9cc" }} />
+                        <YAxis
+                          tick={{ fill: "#666", fontSize: 12 }}
+                          tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
+                        />
+                        <ChartTooltip
+                          formatter={(value: number) => [
+                            `${value.toLocaleString()} ₫`,
+                            "Total Value",
+                          ]}
+                          contentStyle={{
+                            backgroundColor: "rgba(255, 255, 255, 0.95)",
+                            borderRadius: "8px",
+                            border: `1px solid ${TERTIARY_COLOR}`,
+                            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                          }}
+                          labelStyle={{ color: TERTIARY_COLOR }}
+                        />
+                        <Legend />
+                        <Bar
+                          dataKey="totalValue"
+                          fill={TERTIARY_COLOR}
+                          radius={[4, 4, 0, 0]}
+                          barSize={30}
+                          animationDuration={1000}
+                        >
+                          {chartDataBar.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={entry.totalValue > 0 ? TERTIARY_COLOR : DANGER_COLOR}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
                   ) : (
-                    <Typography color="textSecondary">No transaction data available</Typography>
+                    <Stack alignItems="center" justifyContent="center" height="100%">
+                      {showLoading ? (
+                        <CircularProgress size={30} sx={{ color: TERTIARY_COLOR }} />
+                      ) : (
+                        <Box textAlign="center">
+                          <Typography variant="body1" color="text.secondary" gutterBottom>
+                            No transaction data available
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Start making transactions to see the values
+                          </Typography>
+                        </Box>
+                      )}
+                    </Stack>
                   )}
                 </Box>
-              )}
-            </Box>
-          </Paper>
+              </Stack>
+            </ChartContainer>
+          </Grid>
         </Grid>
-      </Grid>
+      </Box>
 
-      {/* Loading overlay */}
+      {/* Loading Overlay */}
       {showLoading && (
         <Box
           sx={{
             position: "fixed",
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
+            right: 0,
+            bottom: 0,
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
-            bgcolor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            bgcolor: alpha('#fff', 0.8),
             zIndex: 9999,
           }}
         >
-          <CircularProgress sx={{ color: "#4e73df" }} />
+          <Paper
+            elevation={4}
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <CircularProgress size={24} sx={{ color: PRIMARY_COLOR }} />
+            <Typography>Loading data...</Typography>
+          </Paper>
         </Box>
       )}
     </Container>
