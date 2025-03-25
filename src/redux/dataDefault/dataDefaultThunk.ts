@@ -1,7 +1,7 @@
-import { axiosClient, axiosFormData } from 'axiosClient/axiosClient';
+import { axiosClient } from 'axiosClient/axiosClient';
 import { ROUTES_API_DATADEFAULT } from 'constants/routesApiKeys';
 import { setMessageError, setMessageSuccess } from 'redux/auth/authSlice';
-import { getErrorMessage, handleResponseMessage, appendData } from 'utils'; 
+import { getErrorMessage, handleResponseMessage } from 'utils'; 
 import { getDataDefault } from './dataDefaultSlice';
 
 export const getDataDefaultThunk = async (params: any, thunkAPI: any) => {
@@ -20,7 +20,7 @@ export const getDataDefaultThunk = async (params: any, thunkAPI: any) => {
 };
 
 export const updateDataDefaultThunk = async (params: any, thunkAPI: any) => {
-  const { data, optionParams, navigate } = params;
+  const { data, navigate } = params;
   
   try {
     // Gửi dữ liệu JSON trực tiếp, không cần chuyển sang FormData

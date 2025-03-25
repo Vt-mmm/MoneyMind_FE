@@ -57,10 +57,10 @@ import {
 } from "redux/userAccount/manageAccountSlice";
 
 // Constants
-const PRIMARY_COLOR = '#4caf50';
-const DANGER_COLOR = '#d32f2f';
-const VERIFIED_COLOR = '#00c853';
-const UNVERIFIED_COLOR = '#ff9800';
+const PRIMARY_COLOR = '#16ab65';
+const DANGER_COLOR = '#FF4842';
+const VERIFIED_COLOR = '#00AB55';
+const UNVERIFIED_COLOR = '#FFC107';
 
 // Styled Components
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
@@ -297,7 +297,7 @@ const UserManagementPage = () => {
               <PersonIcon />
             </Avatar>
             <Box>
-              <Typography variant="h5" fontWeight={700} color="primary">
+              <Typography variant="h5" fontWeight={700} color="primary" sx={{ color: PRIMARY_COLOR }}>
                 User Management
               </Typography>
             </Box>
