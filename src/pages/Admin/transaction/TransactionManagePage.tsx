@@ -1,8 +1,7 @@
-import { useEffect, useState, ElementType } from "react";
+import { useEffect, useState, } from "react";
 import { useDispatch } from "react-redux";
 import {
   Box,
-  Card,
   Container,
   Grid,
   Typography,
@@ -20,10 +19,8 @@ import {
   Divider,
   CircularProgress,
   TablePagination,
-  TablePaginationProps,
   Button,
   Chip,
-  Tooltip,
   IconButton,
   Paper,
   alpha,
@@ -39,26 +36,18 @@ import { useAppSelector } from "redux/config";
 import { fetchTransactions } from "redux/transaction/transactionSlice";
 import {
   Payments as PaymentsIcon,
-  AttachMoney as MoneyIcon,
-  Description as DescriptionIcon,
   CalendarToday as CalendarIcon,
-  Person as PersonIcon,
-  FormatListNumbered as NumberIcon,
   Refresh as RefreshIcon,
-  LocalOffer as TagIcon,
-  InfoOutlined as InfoIcon,
-  FilterList as FilterListIcon,
-  MoreVert as MoreVertIcon,
   Dashboard as DashboardIcon,
   ViewList as ViewListIcon,
   ViewModule as ViewModuleIcon,
-  Download as DownloadIcon,
 } from "@mui/icons-material";
 
 // Định nghĩa màu sắc
-const PRIMARY_GREEN = "#16ab65"; // Giữ màu xanh lá làm điểm nhấn
-const NEUTRAL_GREY = "#616161"; // Màu xám trung tính cho text
-const LIGHT_GREY_BG = "#fafafa"; // Nền nhạt cho header và hover
+const PRIMARY_GREEN = "#16ab65"; // Màu xanh chính của ứng dụng
+const DANGER_COLOR = "#FF4842"; // Màu đỏ cho cảnh báo
+const WARNING_COLOR = "#FFC107"; // Màu vàng cho thông báo
+const SUCCESS_COLOR = "#00AB55"; // Màu xanh lá cho thành công
 
 const fadeInAnimation = { 
   "0%": { opacity: 0, transform: "translateY(10px)" }, 
@@ -86,17 +75,17 @@ const SearchTextField = styled(TextField)(({ theme }) => ({
     borderRadius: '12px',
     transition: 'all 0.2s ease-in-out',
     '& fieldset': {
-      borderColor: alpha(theme.palette.primary.main, 0.2),
+      borderColor: alpha(PRIMARY_GREEN, 0.2),
     },
     '&:hover fieldset': {
-      borderColor: alpha(theme.palette.primary.main, 0.5),
+      borderColor: alpha(PRIMARY_GREEN, 0.5),
     },
     '&.Mui-focused fieldset': {
-      borderColor: theme.palette.primary.main,
+      borderColor: PRIMARY_GREEN,
       borderWidth: '1px',
     },
     '&.Mui-focused': {
-      boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.15)}`,
+      boxShadow: `0 0 0 3px ${alpha(PRIMARY_GREEN, 0.15)}`,
     },
   },
   '& .MuiInputBase-input': {
@@ -134,8 +123,8 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   borderRadius: 8,
   marginRight: 8,
   '&.Mui-selected': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-    color: theme.palette.primary.main,
+    backgroundColor: alpha(PRIMARY_GREEN, 0.1),
+    color: PRIMARY_GREEN,
   },
 }));
 
@@ -148,7 +137,7 @@ const TransactionCard = styled(Paper)(({ theme }) => ({
   '&:hover': {
     boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.1)}`,
     transform: 'translateY(-4px)',
-    borderColor: alpha(theme.palette.primary.main, 0.2),
+    borderColor: alpha(PRIMARY_GREEN, 0.2),
   },
 }));
 
@@ -205,8 +194,8 @@ export default function TransactionManagementPage() {
   };
 
   const getStatusColor = (amount: number) => {
-    if (amount > 5000000) return '#d32f2f'; // red for high amounts
-    if (amount > 2000000) return '#ff9800'; // orange for medium amounts
+    if (amount > 5000000) return DANGER_COLOR; // red for high amounts
+    if (amount > 2000000) return WARNING_COLOR; // orange for medium amounts
     return PRIMARY_GREEN; // green for normal amounts
   };
 
@@ -237,7 +226,7 @@ export default function TransactionManagementPage() {
                       </Avatar>
                       <Box>
                         <Typography variant="h4" fontWeight="bold" sx={{ 
-                          background: `linear-gradient(90deg, ${PRIMARY_GREEN}, ${theme.palette.primary.dark})`,
+                          background: `linear-gradient(90deg, ${PRIMARY_GREEN}, ${alpha(PRIMARY_GREEN, 0.7)})`,
                           WebkitBackgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
                           mb: 0.5,
@@ -255,8 +244,9 @@ export default function TransactionManagementPage() {
                         color={viewMode === 'list' ? 'primary' : 'default'}
                         onClick={() => setViewMode('list')}
                         sx={{ 
-                          bgcolor: viewMode === 'list' ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
-                          border: viewMode === 'list' ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
+                          bgcolor: viewMode === 'list' ? alpha(PRIMARY_GREEN, 0.1) : 'transparent',
+                          border: viewMode === 'list' ? `1px solid ${alpha(PRIMARY_GREEN, 0.2)}` : 'none',
+                          color: viewMode === 'list' ? PRIMARY_GREEN : 'inherit',
                         }}
                       >
                         <ViewListIcon />
@@ -265,8 +255,9 @@ export default function TransactionManagementPage() {
                         color={viewMode === 'grid' ? 'primary' : 'default'}
                         onClick={() => setViewMode('grid')}
                         sx={{ 
-                          bgcolor: viewMode === 'grid' ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
-                          border: viewMode === 'grid' ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
+                          bgcolor: viewMode === 'grid' ? alpha(PRIMARY_GREEN, 0.1) : 'transparent',
+                          border: viewMode === 'grid' ? `1px solid ${alpha(PRIMARY_GREEN, 0.2)}` : 'none',
+                          color: viewMode === 'grid' ? PRIMARY_GREEN : 'inherit',
                         }}
                       >
                         <ViewModuleIcon />
@@ -299,7 +290,7 @@ export default function TransactionManagementPage() {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <SearchIcon color="primary" sx={{ opacity: 0.7 }} />
+                            <SearchIcon sx={{ color: PRIMARY_GREEN, opacity: 0.7 }} />
                           </InputAdornment>
                         ),
                       }}
@@ -309,7 +300,6 @@ export default function TransactionManagementPage() {
                     <Stack direction="row" spacing={1}>
                       <ActionButton
                         variant="contained"
-                        color="primary"
                         startIcon={<RefreshIcon />}
                         onClick={handleRefresh}
                         sx={{
@@ -339,7 +329,7 @@ export default function TransactionManagementPage() {
                           height: '8px',
                         },
                         '&::-webkit-scrollbar-thumb': {
-                          backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                          backgroundColor: alpha(PRIMARY_GREEN, 0.2),
                           borderRadius: '4px',
                         },
                         '&::-webkit-scrollbar-track': {
@@ -351,44 +341,44 @@ export default function TransactionManagementPage() {
                             <TableRow>
                               <StyledTableCell sx={{ 
                                 fontWeight: 600, 
-                                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                color: theme.palette.primary.main,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.05),
+                                color: PRIMARY_GREEN,
                                 width: '40px',
                               }}>No.</StyledTableCell>
                               <StyledTableCell sx={{ 
                                 fontWeight: 600, 
-                                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                color: theme.palette.primary.main,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.05),
+                                color: PRIMARY_GREEN,
                                 width: '180px',
                               }}>Recipient</StyledTableCell>
                               <StyledTableCell sx={{ 
                                 fontWeight: 600, 
-                                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                color: theme.palette.primary.main,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.05),
+                                color: PRIMARY_GREEN,
                                 width: '320px',
                               }}>Transaction ID</StyledTableCell>
                               <StyledTableCell sx={{ 
                                 fontWeight: 600, 
-                                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                color: theme.palette.primary.main,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.05),
+                                color: PRIMARY_GREEN,
                                 width: '120px',
                               }}>Amount</StyledTableCell>
                               <StyledTableCell sx={{ 
                                 fontWeight: 600, 
-                                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                color: theme.palette.primary.main,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.05),
+                                color: PRIMARY_GREEN,
                                 width: '100px',
                               }}>Transaction Date</StyledTableCell>
                               <StyledTableCell sx={{ 
                                 fontWeight: 600, 
-                                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                color: theme.palette.primary.main,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.05),
+                                color: PRIMARY_GREEN,
                                 width: '200px',
                               }}>Description</StyledTableCell>
                               <StyledTableCell sx={{ 
                                 fontWeight: 600, 
-                                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                color: theme.palette.primary.main,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.05),
+                                color: PRIMARY_GREEN,
                                 width: '100px',
                               }}>Tags</StyledTableCell>
                             </TableRow>
@@ -412,7 +402,7 @@ export default function TransactionManagementPage() {
                                     <Box sx={{ 
                                       p: 3, 
                                       borderRadius: '50%', 
-                                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                                      bgcolor: alpha(PRIMARY_GREEN, 0.05),
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
@@ -427,9 +417,18 @@ export default function TransactionManagementPage() {
                                     </Typography>
                                     <Button 
                                       variant="outlined" 
-                                      color="primary" 
                                       onClick={() => setSearchTerm('')}
-                                      sx={{ mt: 1, borderRadius: '10px', textTransform: 'none' }}
+                                      sx={{ 
+                                        mt: 1, 
+                                        borderRadius: '10px', 
+                                        textTransform: 'none',
+                                        borderColor: PRIMARY_GREEN,
+                                        color: PRIMARY_GREEN,
+                                        '&:hover': {
+                                          borderColor: PRIMARY_GREEN,
+                                          bgcolor: alpha(PRIMARY_GREEN, 0.1),
+                                        }
+                                      }}
                                     >
                                       Clear search
                                     </Button>
@@ -444,7 +443,7 @@ export default function TransactionManagementPage() {
                                     key={transaction.id || index}
                                     sx={{
                                       '&:hover': {
-                                        bgcolor: alpha(theme.palette.primary.main, 0.03),
+                                        bgcolor: alpha(PRIMARY_GREEN, 0.03),
                                       },
                                       transition: 'background-color 0.2s',
                                     }}
@@ -471,7 +470,7 @@ export default function TransactionManagementPage() {
                                       <Typography 
                                         variant="body2" 
                                         sx={{ 
-                                          color: '#16ab65',
+                                          color: PRIMARY_GREEN,
                                           fontFamily: 'monospace',
                                         }}
                                       >
@@ -540,7 +539,7 @@ export default function TransactionManagementPage() {
                           <Box sx={{ 
                             p: 3, 
                             borderRadius: '50%', 
-                            bgcolor: alpha(theme.palette.primary.main, 0.05),
+                            bgcolor: alpha(PRIMARY_GREEN, 0.05),
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -554,10 +553,19 @@ export default function TransactionManagementPage() {
                             Try adjusting your search or filters to find what you're looking for
                           </Typography>
                           <Button 
-                            variant="outlined" 
-                            color="primary" 
+                            variant="outlined"
                             onClick={() => setSearchTerm('')}
-                            sx={{ mt: 1, borderRadius: '10px', textTransform: 'none' }}
+                            sx={{ 
+                              mt: 1, 
+                              borderRadius: '10px', 
+                              textTransform: 'none',
+                              borderColor: PRIMARY_GREEN,
+                              color: PRIMARY_GREEN,
+                              '&:hover': {
+                                borderColor: PRIMARY_GREEN,
+                                bgcolor: alpha(PRIMARY_GREEN, 0.1),
+                              }
+                            }}
                           >
                             Clear search
                           </Button>
@@ -699,7 +707,14 @@ export default function TransactionManagementPage() {
                       rowsPerPage={rowsPerPage}
                       onRowsPerPageChange={handleChangeRowsPerPage}
                       rowsPerPageOptions={[10, 20, 50]}
-                      sx={{ mt: 2 }}
+                      sx={{ 
+                        mt: 2,
+                        '.MuiTablePagination-select': {
+                          '&:focus': {
+                            bgcolor: alpha(PRIMARY_GREEN, 0.1),
+                          },
+                        },
+                      }}
                     />
                   )}
                 </StyledCard>

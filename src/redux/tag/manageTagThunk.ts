@@ -1,8 +1,7 @@
 import { axiosClient } from "axiosClient/axiosClient";
 import { ROUTES_API_TAGS } from "constants/routesApiKeys";
-import { setMessageError, setMessageSuccess } from "redux/auth/authSlice";
+import { setMessageError,  } from "redux/auth/authSlice";
 import { getErrorMessage, handleResponseMessage } from "utils";
-import { getAllTags } from "./manageTagSlice";
 
 // 1) Lấy danh sách tags
 export const getAllTagsThunk = async (params: any, thunkAPI: any) => {

@@ -31,6 +31,10 @@ import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useNavigate } from "react-router-dom";
 
+// Định nghĩa màu sắc
+const PRIMARY_COLOR = "#16ab65"; // Màu xanh chính của ứng dụng
+const TEXT_SECONDARY = "#637381"; // Màu text phụ
+
 const fadeInSlideUp = {
   "0%": { opacity: 0, transform: "translateY(10px)" },
   "100%": { opacity: 1, transform: "translateY(0)" }
@@ -45,16 +49,27 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(2),
   verticalAlign: "middle",
   fontSize: "0.875rem",
+  '&.MuiTableCell-head': {
+    backgroundColor: alpha(PRIMARY_COLOR, 0.04),
+    fontWeight: 600,
+    color: PRIMARY_COLOR,
+  },
 }));
 
 const SearchTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     borderRadius: '12px',
     '& fieldset': {
-      borderColor: '#E0E3E7',
+      borderColor: alpha(PRIMARY_COLOR, 0.2),
     },
     '&:hover fieldset': {
-      borderColor: '#B2BAC2',
+      borderColor: alpha(PRIMARY_COLOR, 0.5),
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: PRIMARY_COLOR,
+    },
+    '&.Mui-focused': {
+      boxShadow: `0 0 0 2px ${alpha(PRIMARY_COLOR, 0.2)}`,
     },
   },
 });
@@ -114,15 +129,15 @@ const ManageTagPage = () => {
             mb={3}
           >
             <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography variant="h4" fontWeight="bold" color="primary">
+              <Typography variant="h4" fontWeight="bold" sx={{ color: PRIMARY_COLOR }}>
                 Manage Tags
               </Typography>
               <Chip 
                 label={`${totalRecord || 0} tags`} 
                 size="small" 
                 sx={{ 
-                  bgcolor: theme.palette.primary.light,
-                  color: theme.palette.primary.contrastText,
+                  bgcolor: alpha(PRIMARY_COLOR, 0.1),
+                  color: PRIMARY_COLOR,
                   fontWeight: 500
                 }} 
               />
@@ -135,6 +150,12 @@ const ManageTagPage = () => {
                 sx={{
                   borderRadius: '10px',
                   textTransform: 'none',
+                  borderColor: alpha(PRIMARY_COLOR, 0.5),
+                  color: PRIMARY_COLOR,
+                  '&:hover': {
+                    borderColor: PRIMARY_COLOR,
+                    bgcolor: alpha(PRIMARY_COLOR, 0.05),
+                  }
                 }}
               >
                 Refresh
@@ -152,7 +173,7 @@ const ManageTagPage = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon color="action" />
+                  <SearchIcon sx={{ color: alpha(PRIMARY_COLOR, 0.7) }} />
                 </InputAdornment>
               ),
             }}
@@ -161,14 +182,23 @@ const ManageTagPage = () => {
 
           {isLoading ? (
             <Stack alignItems="center" justifyContent="center" minHeight={300}>
-              <CircularProgress size={40} />
+              <CircularProgress size={40} sx={{ color: PRIMARY_COLOR }} />
               <Typography variant="body2" color="text.secondary" mt={2}>
                 Loading tags...
               </Typography>
             </Stack>
           ) : tags.length === 0 ? (
             <Stack alignItems="center" justifyContent="center" minHeight={300} spacing={2}>
-              <InboxOutlinedIcon sx={{ fontSize: 80, color: 'text.secondary', opacity: 0.7 }} />
+              <Box sx={{ 
+                p: 3, 
+                borderRadius: '50%', 
+                bgcolor: alpha(PRIMARY_COLOR, 0.05),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <InboxOutlinedIcon sx={{ fontSize: 80, color: alpha(PRIMARY_COLOR, 0.6) }} />
+              </Box>
               <Typography variant="body1" color="text.secondary">
                 No tags found
               </Typography>
@@ -184,12 +214,12 @@ const ManageTagPage = () => {
                 boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
               }}>
                 <Table>
-                  <TableHead sx={{ bgcolor: 'rgba(0, 0, 0, 0.02)' }}>
+                  <TableHead sx={{ bgcolor: alpha(PRIMARY_COLOR, 0.03) }}>
                     <TableRow>
-                      <StyledTableCell sx={{ fontWeight: 600 }}>No.</StyledTableCell>
-                      <StyledTableCell sx={{ fontWeight: 600 }}>Tag Name</StyledTableCell>
-                      <StyledTableCell sx={{ fontWeight: 600 }}>Description</StyledTableCell>
-                      <StyledTableCell sx={{ fontWeight: 600 }}>Color</StyledTableCell>
+                      <StyledTableCell>No.</StyledTableCell>
+                      <StyledTableCell>Tag Name</StyledTableCell>
+                      <StyledTableCell>Description</StyledTableCell>
+                      <StyledTableCell>Color</StyledTableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -198,9 +228,12 @@ const ManageTagPage = () => {
                         key={tag.id}
                         sx={{
                           '&:hover': {
-                            bgcolor: 'rgba(145, 158, 171, 0.08)',
+                            bgcolor: alpha(PRIMARY_COLOR, 0.04),
                           },
                           transition: 'background-color 0.2s',
+                          '&:nth-of-type(odd)': {
+                            bgcolor: alpha(PRIMARY_COLOR, 0.01),
+                          },
                         }}
                       >
                         <StyledTableCell>{page * rowsPerPage + index + 1}</StyledTableCell>
@@ -255,6 +288,13 @@ const ManageTagPage = () => {
                   rowsPerPage={rowsPerPage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
                   rowsPerPageOptions={[10, 20, 50]}
+                  sx={{
+                    '.MuiTablePagination-select': {
+                      '&:focus': {
+                        bgcolor: alpha(PRIMARY_COLOR, 0.1),
+                      },
+                    },
+                  }}
                 />
               </Box>
             </>
@@ -266,3 +306,20 @@ const ManageTagPage = () => {
 };
 
 export default ManageTagPage;
+
+function alpha(color: string, opacity: number): string {
+  return `rgba(${hexToRgb(color)}, ${opacity})`;
+}
+
+function hexToRgb(hex: string): string {
+  // Loại bỏ dấu # nếu có
+  hex = hex.replace('#', '');
+  
+  // Parse các giá trị RGB
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  
+  return r + "," + g + "," + b;
+}
