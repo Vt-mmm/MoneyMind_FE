@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "redux/config";
 import { fetchUsers } from "redux/dashboard/dashboardSlice";
-import { Transaction } from "common/models";
+import { Transaction } from "common/models/transaction.model";
 import { fetchTransactions, setPageSize } from "redux/transaction/transactionSlice";
+import { exportToExcel } from "utils/exportUtils";
+import { exportToPDF } from "utils/pdfUtils";
+import { processLineChartData, processBarChartData, ChartData } from "utils/chartUtils";
 import {
   Container,
   Typography,
@@ -42,6 +45,7 @@ import {
   Refresh as RefreshIcon,
   TrendingUp as TrendingUpIcon,
   FilterList as FilterIcon,
+  FileDownload as FileDownloadIcon,
 } from "@mui/icons-material";
 import { FinancialBackground } from "components";
 
@@ -122,15 +126,9 @@ const AnimatedBox = styled(Box)(({ delay = 0 }: { delay?: number }) => ({
 const MoneyMindDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [chartDataLine, setChartDataLine] = useState<
-    { name: string; transactions: number }[]
-  >([]);
-  const [chartDataBar, setChartDataBar] = useState<
-    { name: string; totalValue: number }[]
-  >([]);
-  const [filterType, setFilterType] = useState<"day" | "month" | "year">(
-    "month"
-  );
+  const [chartDataLine, setChartDataLine] = useState<ChartData[]>([]);
+  const [chartDataBar, setChartDataBar] = useState<ChartData[]>([]);
+  const [filterType, setFilterType] = useState<"day" | "month" | "year">("month");
   const [dateFilter, setDateFilter] = useState({
     startDate: "",
     endDate: "",
@@ -144,18 +142,14 @@ const MoneyMindDashboardPage: React.FC = () => {
   const loadTransactions = async () => {
     setIsDataLoading(true);
     try {
-      // First set a larger page size to get more data at once
       await dispatch(setPageSize(50));
-      
-      // Use the getAllPages option to fetch all transactions at once
       await dispatch(fetchTransactions({ 
         navigate, 
         optionParams: {
-          pageSize: 50, // Đặt pageSize cao hơn để lấy nhiều dữ liệu hơn mỗi trang
-          getAllPages: true // Tùy chọn để lấy tất cả các trang
+          pageSize: 50,
+          getAllPages: true
         }
       }));
-      
     } catch (error) {
     } finally {
       setIsDataLoading(false);
@@ -164,142 +158,36 @@ const MoneyMindDashboardPage: React.FC = () => {
 
   // Initial data loading
   useEffect(() => {
-    // Fetch users
     dispatch(fetchUsers({ navigate }));
-    
-    // Fetch transactions with improved approach
     loadTransactions();
   }, [dispatch, navigate]);
 
   // Process chart data when transactions change
   useEffect(() => {
     if (transactions && Array.isArray(transactions) && transactions.length > 0) {
-      processLineChartData(transactions, filterType);
-      processBarChartData(transactions, filterType, dateFilter);
+      setChartDataLine(processLineChartData(transactions, filterType));
+      setChartDataBar(processBarChartData(transactions, filterType, dateFilter));
     }
   }, [transactions, filterType, dateFilter]);
 
-  const hasTransactions =
-    Array.isArray(transactions) && transactions.length > 0;
+  const hasTransactions = Array.isArray(transactions) && transactions.length > 0;
   const hasUsers = Array.isArray(users) && users.length > 0;
   const showLoading = isLoading || isDataLoading;
 
-  // Changed from processPieChartData to processLineChartData
-  const processLineChartData = (
-    transactions: Transaction[],
-    type: "day" | "month" | "year"
-  ) => {
-    let groupedData: Record<string, number> = {};
-    
-    // Sort transactions by date
-    const sortedTransactions = [...transactions].sort((a, b) => {
-      return new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime();
-    });
-    
-    sortedTransactions.forEach((transaction) => {
-      if (!transaction.transactionDate) return;
-      const date = new Date(transaction.transactionDate);
-      if (isNaN(date.getTime())) return;
-
-      let key: string;
-      if (type === "day") {
-        key = date.toLocaleDateString("en-US");
-      } else if (type === "month") {
-        key = `${date.getFullYear()}-${(date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}`;
-      } else {
-        key = `${date.getFullYear()}`;
-      }
-      groupedData[key] = (groupedData[key] || 0) + 1;
-    });
-
-    // Convert to array and sort by date
-    const formattedData = Object.keys(groupedData)
-      .map((key) => ({
-        name: key,
-        transactions: groupedData[key],
-      }))
-      .sort((a, b) => {
-        // For day format
-        if (type === "day") {
-          return new Date(a.name).getTime() - new Date(b.name).getTime();
-        }
-        // For month/year format
-        return a.name.localeCompare(b.name);
-      });
-      
-    setChartDataLine(formattedData);
-  };
-
-  const processBarChartData = (
-    transactions: Transaction[],
-    type: "day" | "month" | "year",
-    filter: { startDate: string; endDate: string }
-  ) => {
-    let filteredTransactions = transactions;
-
-    if (filter.startDate && filter.endDate) {
-      const start = new Date(filter.startDate);
-      const end = new Date(filter.endDate);
-      filteredTransactions = transactions.filter((t) => {
-        const date = new Date(t.transactionDate);
-        return date >= start && date <= end;
-      });
-    }
-
-    let groupedData: Record<string, number> = {};
-    filteredTransactions.forEach((transaction) => {
-      if (!transaction.transactionDate || !transaction.amount) return;
-      const date = new Date(transaction.transactionDate);
-      if (isNaN(date.getTime())) return;
-
-      let key: string;
-      if (type === "day") {
-        key = date.toLocaleDateString("en-US");
-      } else if (type === "month") {
-        key = `${date.getFullYear()}-${(date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}`;
-      } else {
-        key = `${date.getFullYear()}`;
-      }
-      groupedData[key] = (groupedData[key] || 0) + transaction.amount;
-    });
-
-    const formattedData = Object.keys(groupedData)
-      .map((key) => ({
-        name: key,
-        totalValue: groupedData[key],
-      }))
-      .sort((a, b) => {
-        // For day format
-        if (type === "day") {
-          return new Date(a.name).getTime() - new Date(b.name).getTime();
-        }
-        // For month/year format
-        return a.name.localeCompare(b.name);
-      });
-      
-    setChartDataBar(formattedData);
-  };
-
   const handleFilterApply = () => {
-    processLineChartData(transactions || [], filterType);
-    processBarChartData(transactions || [], filterType, dateFilter);
+    if (transactions) {
+      setChartDataLine(processLineChartData(transactions, filterType));
+      setChartDataBar(processBarChartData(transactions, filterType, dateFilter));
+    }
   };
 
   const handleUsersCardClick = () => navigate("/admin/users");
   const handleTransactionsCardClick = () => navigate("/admin/transaction");
 
   const totalTransactionValue = hasTransactions
-    ? transactions.reduce(
-        (sum, transaction) => sum + (transaction.amount || 0),
-        0
-      )
+    ? transactions.reduce((sum, transaction) => sum + (transaction.amount || 0), 0)
     : 0;
 
-  // Function to reload data if needed
   const handleReloadData = () => {
     loadTransactions();
   };
@@ -355,22 +243,58 @@ const MoneyMindDashboardPage: React.FC = () => {
                 </Box>
               </Stack>
 
-              <ActionButton
-                variant="outlined"
-                startIcon={<RefreshIcon />}
-                onClick={handleReloadData}
-                disabled={showLoading}
-                sx={{
-                  borderColor: PRIMARY_COLOR,
-                  color: PRIMARY_COLOR,
-                  '&:hover': {
+              <Stack direction="row" spacing={2}>
+                <ActionButton
+                  variant="outlined"
+                  startIcon={<RefreshIcon />}
+                  onClick={handleReloadData}
+                  disabled={showLoading}
+                  sx={{
                     borderColor: PRIMARY_COLOR,
-                    bgcolor: alpha(PRIMARY_COLOR, 0.05),
-                  },
-                }}
-              >
-                Refresh Data
-              </ActionButton>
+                    color: PRIMARY_COLOR,
+                    '&:hover': {
+                      borderColor: PRIMARY_COLOR,
+                      bgcolor: alpha(PRIMARY_COLOR, 0.05),
+                    },
+                  }}
+                >
+                  Refresh Data
+                </ActionButton>
+                
+                <ActionButton
+                  variant="outlined"
+                  startIcon={<FileDownloadIcon />}
+                  onClick={() => exportToExcel(transactions, chartDataLine, chartDataBar)}
+                  disabled={!hasTransactions || showLoading}
+                  sx={{
+                    borderColor: SECONDARY_COLOR,
+                    color: SECONDARY_COLOR,
+                    '&:hover': {
+                      borderColor: SECONDARY_COLOR,
+                      bgcolor: alpha(SECONDARY_COLOR, 0.05),
+                    },
+                  }}
+                >
+                  Export Excel
+                </ActionButton>
+
+                <ActionButton
+                  variant="outlined"
+                  startIcon={<FileDownloadIcon />}
+                  onClick={() => exportToPDF(transactions, chartDataLine, chartDataBar)}
+                  disabled={!hasTransactions || showLoading}
+                  sx={{
+                    borderColor: TERTIARY_COLOR,
+                    color: TERTIARY_COLOR,
+                    '&:hover': {
+                      borderColor: TERTIARY_COLOR,
+                      bgcolor: alpha(TERTIARY_COLOR, 0.05),
+                    },
+                  }}
+                >
+                  Export PDF
+                </ActionButton>
+              </Stack>
             </Stack>
           </AnimatedBox>
 
@@ -673,7 +597,7 @@ const MoneyMindDashboardPage: React.FC = () => {
                               {chartDataBar.map((entry, index) => (
                                 <Cell
                                   key={`cell-${index}`}
-                                  fill={entry.totalValue > 0 ? TERTIARY_COLOR : DANGER_COLOR}
+                                  fill={(entry.totalValue ?? 0) > 0 ? TERTIARY_COLOR : DANGER_COLOR}
                                 />
                               ))}
                             </Bar>

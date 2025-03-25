@@ -1,7 +1,7 @@
 // transactionSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getDashboardTransactionThunk } from './transactionThunk';
-import { Transaction } from './transactionThunk';
+import { Transaction } from 'common/models/transaction.model';
 
 // Add pagination information to state
 interface TransactionState {

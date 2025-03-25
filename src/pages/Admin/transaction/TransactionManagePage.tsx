@@ -29,7 +29,7 @@ import {
   AvatarGroup,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import { Transaction } from "redux/transaction/transactionThunk";
+import { Transaction } from "common/models/transaction.model";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "redux/config";
@@ -173,7 +173,7 @@ export default function TransactionManagementPage() {
   useEffect(() => {
     if (transactions && Array.isArray(transactions)) {
       const filtered = transactions.filter((transaction) =>
-        transaction.recipientName.toLowerCase().includes(searchTerm.toLowerCase())
+        transaction.recipientName?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false
       );
       setFilteredTransactions(filtered);
     }
