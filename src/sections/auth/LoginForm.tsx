@@ -371,15 +371,6 @@ function LoginForm() {
           </form>
         </FormProvider>
         
-        {errorMessage && (
-          <Typography 
-            variant="body2" 
-            color="error" 
-            sx={{ mt: 2, fontSize: '14px' }}
-          >
-            {errorMessage}
-          </Typography>
-        )}
       </FormContainer>
     </Box>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import images from 'assets';
 
 interface ThreeBackgroundProps {
   color?: string;
@@ -40,14 +41,105 @@ const ThreeBackground = ({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     
-    // Make sure the mount point exists before appending
     if (mountRef.current) {
-      // Clear any previous renderers
       while (mountRef.current.firstChild) {
         mountRef.current.removeChild(mountRef.current.firstChild);
       }
       mountRef.current.appendChild(renderer.domElement);
     }
+
+    // Create 3D text for MoneyMind
+    const createTextMesh = () => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = 256;
+      canvas.height = 64;
+      
+      if (context) {
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.font = 'bold 48px Arial';
+        context.fillStyle = color;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('MoneyMind', canvas.width / 2, canvas.height / 2);
+      }
+      
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide
+      });
+      
+      const geometry = new THREE.PlaneGeometry(4, 1);
+      const textMesh = new THREE.Mesh(geometry, material);
+      return textMesh;
+    };
+
+    // Create multiple text instances
+    const textCount = 4;
+    const textGroup = new THREE.Group();
+    for (let i = 0; i < textCount; i++) {
+      const text = createTextMesh();
+      const angle = (i / textCount) * Math.PI * 2;
+      const radius = 10;
+      text.position.set(
+        Math.cos(angle) * radius,
+        (Math.random() - 0.5) * 2,
+        Math.sin(angle) * radius
+      );
+      text.rotation.y = angle;
+      textGroup.add(text);
+    }
+    scene.add(textGroup);
+
+    // Create coin geometry
+    const createCoinMesh = (radius: number, position: THREE.Vector3) => {
+      const coinGeometry = new THREE.TorusGeometry(radius, radius * 0.2, 16, 32);
+      const coinMaterial = new THREE.MeshStandardMaterial({
+        color: '#FFD700',
+        metalness: 0.8,
+        roughness: 0.3,
+        emissive: '#FFD700',
+        emissiveIntensity: 0.2,
+      });
+      
+      const coin = new THREE.Mesh(coinGeometry, coinMaterial);
+      coin.position.copy(position);
+      
+      // Add $ symbol to the coin
+      const detailGeometry = new THREE.BoxGeometry(radius * 0.1, radius * 1.5, radius * 0.1);
+      const detailMaterial = new THREE.MeshStandardMaterial({ 
+        color: '#FFD700',
+        emissive: '#FFFFFF',
+        emissiveIntensity: 0.5,
+      });
+      
+      const detail = new THREE.Mesh(detailGeometry, detailMaterial);
+      detail.position.z = radius * 0.25;
+      coin.add(detail);
+      
+      return coin;
+    };
+
+    // Create multiple coins
+    const coinCount = 6;
+    const coinGroup = new THREE.Group();
+    for (let i = 0; i < coinCount; i++) {
+      const angle = (i / coinCount) * Math.PI * 2;
+      const radius = 8 + Math.random() * 2;
+      const position = new THREE.Vector3(
+        Math.cos(angle) * radius,
+        (Math.random() - 0.5) * 2,
+        Math.sin(angle) * radius
+      );
+      
+      const coin = createCoinMesh(0.4 + Math.random() * 0.2, position);
+      coinGroup.add(coin);
+    }
+    scene.add(coinGroup);
 
     // Create main particles system
     const mainParticlesGeometry = new THREE.BufferGeometry();
@@ -202,7 +294,7 @@ const ThreeBackground = ({
     scene.add(particlesMesh);
     
     // Add floating light orbs
-    const orbsCount = 5;
+    const orbsCount = 3;
     const orbs: Orb[] = [];
     const orbGroup = new THREE.Group();
     
@@ -415,7 +507,7 @@ const ThreeBackground = ({
     };
     
     // Place financial symbols around the scene
-    const symbolCount = 10;
+    const symbolCount = 5;
     const radius = 8;
     
     for (let i = 0; i < symbolCount; i++) {
@@ -518,6 +610,30 @@ const ThreeBackground = ({
     
     const glowSphere = new THREE.Mesh(glowGeometry, glowMaterial);
     scene.add(glowSphere);
+    
+    // Add project logo
+    const createProjectLogo = () => {
+      const loader = new THREE.TextureLoader();
+      const texture = loader.load(images.logo.logo_moneymind_no_bg);
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.8,
+        side: THREE.DoubleSide
+      });
+      
+      const geometry = new THREE.PlaneGeometry(3, 3); // Adjust size as needed
+      const logoMesh = new THREE.Mesh(geometry, material);
+      
+      // Position the logo slightly above center
+      logoMesh.position.set(0, 2, 0);
+      logoMesh.rotation.x = -Math.PI / 6; // Tilt slightly
+      
+      return logoMesh;
+    };
+
+    const logoMesh = createProjectLogo();
+    scene.add(logoMesh);
     
     // Animation and interaction
     let mouseX = 0;
@@ -623,6 +739,31 @@ const ThreeBackground = ({
       camera.position.y = mouseY * 0.3;
       camera.lookAt(0, 0, 0);
       
+      // Animate text
+      textGroup.rotation.y += 0.001;
+      textGroup.children.forEach((child: THREE.Object3D, i: number) => {
+        if (child instanceof THREE.Mesh) {
+          child.position.y = Math.sin(time + i) * 0.5;
+        }
+      });
+      
+      // Animate coins
+      coinGroup.rotation.y += 0.002;
+      coinGroup.children.forEach((child: THREE.Object3D, i: number) => {
+        if (child instanceof THREE.Mesh) {
+          child.rotation.y += 0.02;
+          child.position.y = Math.sin(time * 0.5 + i) * 0.3;
+        }
+      });
+      
+      // Animate logo
+      if (logoMesh) {
+        logoMesh.rotation.y = Math.sin(time * 0.5) * 0.1;
+        logoMesh.position.y = 2 + Math.sin(time) * 0.2;
+        const scale = 1 + Math.sin(time * 0.8) * 0.05;
+        logoMesh.scale.set(scale, scale, scale);
+      }
+      
       renderer.render(scene, camera);
     };
     
@@ -687,6 +828,47 @@ const ThreeBackground = ({
       if (mountRef.current) {
         mountRef.current.removeChild(renderer.domElement);
       }
+      
+      // Clean up text
+      textGroup.children.forEach((child: THREE.Object3D) => {
+        if (child instanceof THREE.Mesh) {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(material => material.dispose());
+            } else {
+              child.material.dispose();
+            }
+          }
+        }
+      });
+      scene.remove(textGroup);
+      
+      // Clean up coins
+      coinGroup.children.forEach((child: THREE.Object3D) => {
+        if (child instanceof THREE.Mesh) {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(material => material.dispose());
+            } else {
+              child.material.dispose();
+            }
+          }
+        }
+      });
+      scene.remove(coinGroup);
+      
+      // Clean up logo
+      if (logoMesh.geometry) logoMesh.geometry.dispose();
+      if (logoMesh.material) {
+        if (Array.isArray(logoMesh.material)) {
+          logoMesh.material.forEach(material => material.dispose());
+        } else {
+          logoMesh.material.dispose();
+        }
+      }
+      scene.remove(logoMesh);
     };
   }, [color, particleCount]);
 
