@@ -3,15 +3,7 @@ import { axiosClient } from "axiosClient/axiosClient";
 import { ROUTES_API_DASHBOARD } from "constants/routesApiKeys";
 import { setMessageError } from "redux/auth/authSlice";
 import { getErrorMessage, handleResponseMessage } from "utils";
-
-export interface Transaction {
-  id: string;
-  amount: number;
-  description: string;
-  transactionDate: string;
-  recipientName: string;
-  tags?: { id: string; name: string; color: string; }[];
-}
+import { Transaction } from 'common/models';
 
 export const getDashboardTransactionThunk = async (
   params: any,
@@ -74,7 +66,8 @@ export const getDashboardTransactionThunk = async (
             description: item.description,
             transactionDate: item.transactionDate,
             recipientName: item.recipientName,
-            tags: item.tags || [],
+            tags: item.tags,
+            userId: item.userId || 0
           }));
 
           allTransactions = [...allTransactions, ...transactions];
@@ -122,7 +115,8 @@ export const getDashboardTransactionThunk = async (
         description: item.description,
         transactionDate: item.transactionDate,
         recipientName: item.recipientName,
-        tags: item.tags || [],
+        tags: item.tags,
+        userId: item.userId || 0
       }));
 
       return transactions;
