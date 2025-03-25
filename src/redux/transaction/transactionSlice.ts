@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getDashboardTransactionThunk } from './transactionThunk';
 import { Transaction } from './transactionThunk';
 
-// Thêm thông tin pagination vào state
+// Add pagination information to state
 interface TransactionState {
   transactions: Transaction[];
   isLoading: boolean;
@@ -30,16 +30,16 @@ const initialState: TransactionState = {
   }
 };
 
-// Async Thunk để lấy dữ liệu giao dịch từ API
+// Async Thunk to fetch transaction data from API
 export const fetchTransactions = createAsyncThunk(
   'transaction/fetch-transactions',
   async (params: any, thunkAPI) => {
-    // Thêm trường getAllPages để lấy tất cả dữ liệu
+    // Add getAllPages field to get all data
     const paramsWithPagination = {
       ...params,
       optionParams: {
         ...params.optionParams,
-        getAllPages: true, // Đặt true để lấy tất cả các trang
+        getAllPages: true, // Set to true to get all pages
       }
     };
     
@@ -48,7 +48,7 @@ export const fetchTransactions = createAsyncThunk(
   }
 );
 
-// Thêm thunk mới để hỗ trợ pagination nếu cần lấy từng trang
+// Add new thunk to support pagination if needed to get each page
 export const fetchTransactionPage = createAsyncThunk(
   'transaction/fetch-transaction-page',
   async (params: any, thunkAPI) => {
@@ -57,18 +57,18 @@ export const fetchTransactionPage = createAsyncThunk(
       transactions: result,
       pagination: {
         currentPage: params.optionParams?.page || 1,
-        // Các thông tin khác sẽ được cập nhật nếu API trả về
+        // Other information will be updated if API returns
       }
     };
   }
 );
 
-// Tạo transactionSlice
+// Create transactionSlice
 const transactionSlice = createSlice({
   name: 'transaction',
   initialState,
   reducers: {
-    // Thêm reducer để thay đổi trang
+    // Add reducer to change page
     setCurrentPage: (state, action: PayloadAction<number>) => {
       state.pagination.currentPage = action.payload;
     },
@@ -91,7 +91,7 @@ const transactionSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
       })
-      // Xử lý các case cho fetchTransactionPage
+      // Handle cases for fetchTransactionPage
       .addCase(fetchTransactionPage.pending, (state) => {
         state.isLoading = true;
       })
@@ -99,7 +99,7 @@ const transactionSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.transactions = action.payload.transactions || [];
-        // Cập nhật thông tin pagination từ kết quả trả về
+        // Update pagination information from returned result
         if (action.payload.pagination) {
           state.pagination = {
             ...state.pagination,

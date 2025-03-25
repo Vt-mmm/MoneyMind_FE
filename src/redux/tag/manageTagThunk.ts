@@ -3,7 +3,7 @@ import { ROUTES_API_TAGS } from "constants/routesApiKeys";
 import { setMessageError,  } from "redux/auth/authSlice";
 import { getErrorMessage, handleResponseMessage } from "utils";
 
-// 1) Lấy danh sách tags
+// Get all tags
 export const getAllTagsThunk = async (params: any, thunkAPI: any) => {
     const { navigate, optionParams } = params;
     try {
@@ -17,5 +17,4 @@ export const getAllTagsThunk = async (params: any, thunkAPI: any) => {
         thunkAPI.dispatch(setMessageError(msg));
         return thunkAPI.rejectWithValue(error);
     }
-
 };

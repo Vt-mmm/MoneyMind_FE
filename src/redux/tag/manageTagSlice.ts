@@ -3,12 +3,12 @@ import { getAllTagsThunk } from "./manageTagThunk";
 import { TagInfo } from "common/models";
 
 // --------------------
-// 1. Khai báo các createAsyncThunk
+// 1. Define createAsyncThunk
 // --------------------
 export const getAllTags = createAsyncThunk("Tag/getAllTags", getAllTagsThunk);
 
 // --------------------
-// 2. Định nghĩa interface State
+// 2. Define State interface
 // --------------------
 interface TagState {
   isLoading: boolean;
@@ -22,7 +22,7 @@ interface TagState {
 }
 
 // --------------------
-// 3. Khởi tạo giá trị initialState
+// 3. Initialize initialState
 // --------------------
 const initialState: TagState = {
   isLoading: false,
@@ -36,7 +36,7 @@ const initialState: TagState = {
 };
 
 // --------------------
-// 4. Tạo Slice
+// 4. Create Slice
 // --------------------
 const tagSlice = createSlice({
   name: "Tag",

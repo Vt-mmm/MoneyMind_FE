@@ -37,12 +37,12 @@ export const loginThunk = async (params: Params<LoginForm>, thunkAPI: any) => {
       setRefreshToken(response.data.tokens.refreshToken);
       setUserAuth(userStorage);
       setAuthenticated();
-      const message = handleResponseMessage("Đăng nhập thành công.");
+      const message = handleResponseMessage("Login successful.");
       thunkAPI.dispatch(setMessageSuccess(message));
       return userStorage;
     } else {
       const message = handleResponseMessage(
-        "Bạn không có quyền truy cập vào hệ thống"
+        "You do not have permission to access the system"
       );
       thunkAPI.dispatch(setMessageError(message));
       return thunkAPI.rejectWithValue(message);
@@ -50,11 +50,12 @@ export const loginThunk = async (params: Params<LoginForm>, thunkAPI: any) => {
   } catch (error: any) {
     const errorMessage =
       error.response?.data?.message ||
-      handleResponseMessage("Sai tài khoản hoặc mật khẩu. Vui lòng thử lại!");
+      handleResponseMessage("Invalid username or password. Please try again!");
     thunkAPI.dispatch(setMessageError(errorMessage));
     return thunkAPI.rejectWithValue(errorMessage);
   }
 };
+
 export const googleLoginThunk = async (
   googleToken: string,
   thunkAPI: any
@@ -70,7 +71,7 @@ export const googleLoginThunk = async (
 
     if (!response.data || !response.data.userId) {
       const message = handleResponseMessage(
-        "Lỗi: Backend không trả về thông tin người dùng."
+        "Error: Backend did not return user information."
       );
       thunkAPI.dispatch(setMessageError(message));
       return thunkAPI.rejectWithValue(message);
@@ -89,23 +90,23 @@ export const googleLoginThunk = async (
       setUserAuth(user);
       setAuthenticated();
       const message = handleResponseMessage(
-        "Đăng nhập bằng Google thành công."
+        "Google login successful."
       );
       thunkAPI.dispatch(setMessageSuccess(message));
       return user;
     } else {
       const message = handleResponseMessage(
-        "Bạn không có quyền truy cập vào hệ thống. Hãy đợi tới khi được cấp quyền"
+        "You do not have permission to access the system. Please wait until you are granted access"
       );
       thunkAPI.dispatch(setMessageError(message));
       return thunkAPI.rejectWithValue(message);
     }
   } catch (error: any) {
-    console.error(" Lỗi từ Backend:", error.response?.data || error);
+    console.error("Backend Error:", error.response?.data || error);
 
     const errorMessage =
       error.response?.data?.message ||
-      handleResponseMessage("Đăng nhập Google thất bại. Vui lòng thử lại!");
+      handleResponseMessage("Google login failed. Please try again!");
 
     thunkAPI.dispatch(setMessageError(errorMessage));
     return thunkAPI.rejectWithValue(errorMessage);
